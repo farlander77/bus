@@ -97,6 +97,11 @@ body{
 	max-height: 150px;
 	object-fit: contain;
 }
+    
+    
+    .build1{position: absolute; bottom: -25px; left: -28vw; z-index: -2;}
+    .build2{position: absolute; bottom: -15px; right: -32vw; z-index: -1;}
+    .build3{position: absolute; bottom: -25px; left: -10vw; z-index: -3;}
 }
 
 @media(max-width:767px){
@@ -115,6 +120,10 @@ body{
 	max-height: 120px;
 	object-fit: contain;
 }
+    
+    .build1{position: absolute; bottom: -15px; left: -40vw; z-index: -2;}
+    .build2{position: absolute; bottom: -35px; right: -65vw; z-index: -1;}
+    .build3{position: absolute; bottom: -25px; left: -0vw; z-index: -3;}
 }
 
 
@@ -133,7 +142,7 @@ body{
 	margin-bottom: 15px;
 	min-height: 400px;
 	display: flex;
-	justify-content: center;
+	/*justify-content: center;*/
 	flex-direction: column;
     flex: 1;
 }
@@ -194,7 +203,7 @@ body{
 	margin-bottom: 15px;
 	min-height: 400px;
 	display: flex;
-	justify-content: center;
+	/*justify-content: center;*/
 	flex-direction: column;
     flex: 1;
 }
