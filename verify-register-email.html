@@ -12,7 +12,6 @@
 	<link rel="stylesheet" href="css/css.css" />
 	
 	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <title>水湳號自駕巴士預約系統平台</title>
 
@@ -28,53 +27,40 @@
 <header class="header">
   <img src="images/logo2b.png" alt=""/>
 </header>
-
+	
 <div class="content">
-<div class="banner">
-<div class="swiper bannerSwiper">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide"><img src="images/banner1.jpg" alt=""/></div>
-      <div class="swiper-slide"><img src="images/banner2.jpg" alt=""/></div>
-      <div class="swiper-slide"><img src="images/banner3.jpg" alt=""/></div>
-    </div>
-	<div class="swiper-button-next"></div>
-    <div class="swiper-button-prev"></div>
- </div>
+	
+<div class="inside-area">
+	<div class="inside-header">輸入驗證碼</div>
+	<div class="inside-body">
+		
+	<div class="form-input-area">
+	<div class="inside-title"><span>驗證碼</span><span class="float-right">10分鐘內有效</span></div>
+	<input class="form-control" placeholder="請輸入驗證碼">
+	<span class="error-message">輸入錯誤</span>
+	</div>
+	
+	<div class="resend-area">
+	<button type="button" class="btn-resend">重發驗證碼</button>
+	</div>
+	</div>
 </div>
-<div class="swiper-pagination"></div>
     
 <div class="build1"><img src="images/build1.png" width="300"  alt=""/></div>
 <div class="build2"><img src="images/build2.png" width="400"  alt=""/></div>
 <div class="build3"><img src="images/build3.png" width="300"  alt=""/></div>
+
 </div>
-
-<div class="footer">
-
+<div class="footer">	
 <div class="btn-area">
-	<button class="btn-register" onClick="location.href='register.html'">註冊</button>
-	<button class="btn-login" onClick="location.href='login.html'">登入</button>
+	<button class="btn-back" onClick="location.href='register.html'">返回</button>
+	<button class="btn-confirm" onClick="location.href='register-success.html'">確認</button>
 </div>
 <div class="organizers">
-<span style="font-size: 12px;">主辦單位：臺中市政府交通局 ｜ 執行單位：勤崴國際</span>
-<span style="font-size: 11px;">服務電話02-2363-5445 ｜ 服務時間：週一到週五 <span style="font-size: 10px;">(10:00 - 17:00)</span> </span>
+<span>主辦單位：臺中市交通局 ｜ 執行單位：勤崴國際</span>
+<span>連絡電話：0223635445</span>
 </div>
 </div>
-
 </div>
-	
-<script>
-var swiper = new Swiper(".bannerSwiper", {
-  loop: true,
-  //autoplay:true,
-  pagination: {
-	el: ".swiper-pagination",
-  },
- navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      },
-});
-</script>
-	
 </body>
 </html>

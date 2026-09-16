@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head >
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9,chrome=1,requiresActiveX=true" />
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+	<link rel="stylesheet" href="css/css.css" />
+	
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <title>水湳號自駕巴士預約系統平台</title>
+
+    <script type="text/javascript">
+	$(document).ready(function() {
+	$('body').hide().fadeIn(500);
+	});
+	</script>
+</head>
+<body>
+<div class="page">
+
+<header class="header">
+  <img src="images/logo2b.png" alt=""/>
+</header>
+	
+<div class="content">
+	
+<div class="resend-title">請輸入 6 位數字驗證碼</div>
+    
+    <div class="otp-inputs" id="otp-inputs">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+    </div>
+    <div class="resend-container">
+   
+    <button id="resend-btn" class="btn-resend" disabled>重發認證碼</button>
+    <p id="timer-text">重新發送 (<span>60</span>s)</p>
+    </div>
+    
+    <div class="build1"><img src="images/build1.png" width="300"  alt=""/></div>
+    <div class="build2"><img src="images/build2.png" width="400"  alt=""/></div>
+    <div class="build3"><img src="images/build3.png" width="300"  alt=""/></div>
+
+</div>
+<div class="footer">	
+<div class="btn-area">
+	<button class="btn-back" onClick="location.href='login.html'">返回</button>
+	<button class="btn-confirm" onClick="location.href='login-success.html'">確認</button>
+</div>
+<div class="organizers">
+<span>主辦單位：臺中市交通局 ｜ 執行單位：勤崴國際</span>
+<span>連絡電話：0223635445</span>
+</div>
+</div>
+</div>
+    
+<script>
+    
+    
+const resendBtn = document.getElementById('resend-btn');
+const timerText = document.getElementById('timer-text');
+const countdownSpan = timerText.querySelector('span');
+
+let countdownTime = 10;
+let timer = null;
+
+// 開始倒數計時的函式
+function startCountdown() {
+    countdownTime = 10; // 重設秒數
+    resendBtn.disabled = true; // 禁用按鈕
+    timerText.style.display = 'block'; // 顯示文字
+    
+    // 更新顯示
+    countdownSpan.innerText = countdownTime;
+
+    // 清除舊的計時器（如果有的話）
+    if (timer) clearInterval(timer);
+
+    timer = setInterval(() => {
+        countdownTime--;
+        countdownSpan.innerText = countdownTime;
+
+        if (countdownTime <= 0) {
+            clearInterval(timer);
+            resendBtn.disabled = false; // 恢復按鈕
+            timerText.style.display = 'none'; // 隱藏倒數文字
+        }
+    }, 1000);
+}
+
+// 監聽重發按鈕點擊
+resendBtn.addEventListener('click', () => {
+    // 這裡通常會呼叫 API 發送簡訊
+    console.log("正在重新發送驗證碼...");
+    
+    // 模擬 API 呼叫後重啟倒數
+    startCountdown();
+});
+
+// 頁面載入後自動開始第一次倒數
+window.onload = startCountdown;
+    
+    
+// script.js
+const inputs = document.querySelectorAll('#otp-inputs input');
+const verifyBtn = document.getElementById('verify-btn');
+
+inputs.forEach((input, index) => {
+    // 監聽輸入事件
+    input.addEventListener('input', (e) => {
+        const value = e.target.value;
+        
+        // 確保只能輸入數字
+        if (value && !/^\d+$/.test(value)) {
+            e.target.value = '';
+            return;
+        }
+
+        // 如果有輸入，自動跳下一格
+        if (value && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+        }
+
+        checkCompletion();
+    });
+
+    // 監聽退格鍵 (Backspace)
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+            inputs[index - 1].focus();
+        }
+    });
+
+    // 支援貼上功能
+    input.addEventListener('paste', (e) => {
+        const data = e.clipboardData.getData('text').slice(0, 6);
+        if (/^\d+$/.test(data)) {
+            data.split('').forEach((char, i) => {
+                if (inputs[i]) inputs[i].value = char;
+            });
+            inputs[Math.min(data.length, 5)].focus();
+            checkCompletion();
+        }
+        e.preventDefault();
+    });
+});
+
+function checkCompletion() {
+    const isFull = Array.from(inputs).every(input => input.value !== '');
+    verifyBtn.disabled = !isFull;
+}
+
+verifyBtn.addEventListener('click', () => {
+    const code = Array.from(inputs).map(i => i.value).join('');
+    alert(`驗證碼已送出: ${code}`);
+});
+    
+    
+    
+    
+    
+
+</script>
+	
+</body>
+</html>

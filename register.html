@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head >
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9,chrome=1,requiresActiveX=true" />
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+	<link rel="stylesheet" href="css/css.css" />
+	<link rel="stylesheet" href="css/bootstrap-custom.css" />
+	
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="jss/modal.js"></script>
+
+
+    <title>水湳號自駕巴士預約系統平台</title>
+
+    <script type="text/javascript">
+	$(document).ready(function() {
+	$('body').hide().fadeIn(500);
+	});
+	</script>
+	
+</head>
+<body>
+<div class="page">
+
+<header class="header">
+	<img src="images/logo2b.png" alt=""/>
+</header>
+	
+<div class="content">
+<div class="inside-area">
+	<div class="inside-header">註冊頁面</div>
+	<div class="inside-body">
+		
+	<div class="form-input-area">
+	<div class="inside-title">註冊手機號碼</div>
+	<input class="form-control" placeholder="請輸入手機號碼">
+	<span class="error-message-r">手機號碼錯誤</span>
+	</div>
+		
+	<div class="form-input-area">
+	<div class="inside-title">註冊名稱</div>
+	<input class="form-control" placeholder="請輸入名稱">
+	<span class="error-message-r">錯誤訊息</span>
+	</div>
+		
+	<div class="terms-hr">
+	<span class="hr-text">請點選閱讀</span>
+	</div>
+		
+	<div class="terms-area">
+	<button class="btn-terms" data-bs-toggle="modal" data-target="#modal-terms1">
+		<label class="btn-terms-text">
+		<input type="checkbox" id="chk-terms1" class="no-check">
+		<span>同意試乘條款</span>
+		</label>
+	</button>
+	<button class="btn-terms" data-bs-toggle="modal" data-target="#modal-terms2"><label class="btn-terms-text">
+		<input type="checkbox" id="chk-terms2" class="no-check">
+		<span>隱私聲明與資訊安全手冊</span>
+		</label>
+	</button>
+	</div>
+	</div>
+</div>
+    
+<div class="build1"><img src="images/build1.png" width="300"  alt=""/></div>
+<div class="build2"><img src="images/build2.png" width="400"  alt=""/></div>
+<div class="build3"><img src="images/build3.png" width="300"  alt=""/></div>
+</div>
+<div class="footer">
+<div class="btn-area">
+	<button class="btn-register" onClick="location.href='verify-register.html'">註冊</button>
+</div>
+<div class="organizers">
+<span>主辦單位：臺中市交通局 ｜ 執行單位：勤崴國際</span>
+<span>連絡電話：0223635445</span>
+</div>
+</div>
+</div>
+	
+	
+<!-- Modal -->
+<div class="modal fade" id="modal-terms1">
+<div class="modal-dialog">
+<div class="modal-content">
+  <div class="modal-header">
+	<h5 class="modal-title">自駕巴士乘客運送定型化契約</h5>
+	<button type="button"  class="modal-close" data-bs-dismiss="modal" aria-label="Close"><img src="images/close.svg" width="15" alt=""/></button>
+  </div>
+  <div class="modal-body">
+	 <div class="modal-terms-text">
+	1、 乘客有左列情形之一者，本公司得拒絕其搭乘：<br/>
+	（1） 身患傳染病者。<br/>
+	（2） 酗酒或狀似瘋癲者。<br/>
+	（3） 攜帶違禁品、危險品、易生變壞或破損之物品、不潔或易污損他物之物品。<br/>
+	（4） 兒童過於幼小無人護送者<br/>
+	（5） 不適宜隨車運送之動物類，但引導視障乘客之導盲犬除外。<br/>
+	2、 旅客乘車規定<br/>
+	（1） 乘客隨身攜帶之行李及小件物品，請置於座位下且不妨礙其他乘客，並請自行保管。<br/>
+	（2） 乘客毀損自駕巴士各項設備者，應依法負損害賠償責任。<br/>
+	（3） 乘客搭車時，請於規定站點候車，並提前預約。<br/>
+	（4） 搭車時請於自駕巴士停妥後循序上、下車，且須於座位上坐好，請勿隨意走動。<br/>
+	（5） 自駕巴士車上均備有各項安全設備，行車中遇有緊急事故而需使用時，請接受隨車安全人員之引導及依操作說明使用。<br/>
+	（6） 車廂內禁止吸菸。<br/>
+	3、 自駕巴士之行駛路線、停靠站及行車班距，如路線圖及站牌標示，均按路線行駛，按時發車，但如遇集會地區、臨時交通管制區、機械故障、氣候變化，或其他必要情況，得加以調整變更，並適時於大眾媒體或網站公告。<br/>
+	4、 自駕巴士故障或肇事，隨車安全人員應妥善協助乘客轉車。<br/>
+	5、 乘客因自駕巴士行車事故，致其生命、身體、健康、財產受到損害者，得向本公司投保之保險公司請求賠償，如被害乘客不願比照上述辦法和解而向法院訴請賠償者，法院判決之賠償金額不受上述辦法之限制。<br/>
+	6、 本公司客車上均有標示服務電話，並置備旅客電子意見箱以便於旅客申訴或改進服務建議。<br/>
+	7、 本契約如有未盡事宜，悉依其他相關法令、習慣、誠信原則處理。<br/>
+	</div>
+  	</div>
+	<div class="modal-footer">
+	<div class="modal-footer-btn">
+		<button type="button" class="btn btn-secondary btn-cancel" data-bs-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-danger btn-accept" data-bs-dismiss="modal" data-target-checkbox="#chk-terms1">同意</button>
+	</div>
+	</div>
+</div>
+</div>
+</div>
+	
+<div class="modal fade" id="modal-terms2">
+<div class="modal-dialog">
+<div class="modal-content">
+  <div class="modal-header">
+	<h5 class="modal-title">隱私權聲明及資訊安全政策</h5>
+	<button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"><img src="images/close.svg" width="15" alt=""/></button>
+  </div>
+  <div class="modal-body">
+	 <div class="modal-terms-text">
+	親愛的乘客您好，台中水湳號自駕巴士預約系統平台(以下簡稱本網站)非常重視並尊重您的隱私權。為了幫助您瞭解本網站如何蒐集、處理、利用及保護您的個人資訊，請詳細閱讀本網站制定之保護政策，本政策將幫助您了解，在您使用本網站所提供的服務時，我們管理及使用網友個人資料的政策與原則。<br/><br/>
+ 
+一、適用範圍<br/>
+以下的隱私權保護政策，適用於您在使用水湳號自駕巴士預約系統平台預約搭乘系統網站時，所涉及的個人資料收集、運用與保護。<br/><br/>
+ 
+二、個人資料蒐集、處理及利用方式<br/>
+1. 使用本網站各項服務：當您使用本網站預約搭乘服務，可能會請您提供姓名、電話、電子信箱等個人資訊，而上開所蒐集的個人資料僅供活動依據、使用者特性分析或學術用途使用。<br/>
+2. 一般瀏覽：在本網站瀏覽或查詢時，伺服器自行產生的相關記錄(LOG)，包括連線設備IP位址、使用時間、瀏覽器及瀏覽的資料記錄等。本網站會對個別連線者的瀏覽器予以標示，歸納使用者瀏覽器在本網站內部所瀏覽的網頁，這些資料僅供網站管理者對全體使用者的網路行為進行分析，不會也無法和您的個人資料進行對應。<br/>
+3. 除經過您本人同意或符合以下情況外，本網站不會自行修改或刪除任何個人資料。<br/>
+  （1）違反網站相關規章。<br/>
+  （2）保護其他網友或相關單位的權益。<br/>
+其他：除了上述因使用本網站各項服務或一般瀏覽而提供之個人資料外，如您主動於本網站上公開揭露個人資料者，此種揭露形式，不在本網站隱私權保護政策的範圍以內。<br/><br/>
+ 
+三、Cookies的運用與政策<br/>
+為提供個人化的服務，我們有時候會使用Cookies技術來儲存並在某些時候追蹤網友的資料。Cookie是從網站傳送到瀏覽器，並保存在使用者電腦硬碟中的簡短資料。網友可以在Netscape的「功能設定」的「進階」或是IE的「Internet選項」的「安全性」中選擇修改瀏覽器對Cookies的接受程度，包括接受所有Cookies、設定Cookies時得到通知、拒絕所有Cookies等。如果您選擇拒絕所有的Cookies，可能無法使用部分個人化服務或是參與部分的活動。<br/>
+1. 一般而言，我們會依據以下目的及情況，在網友瀏覽器中寫入並讀取Cookies︰為提供更好、更個人化的服務：方便您參與個人化的互動活動。cookies 在您註冊或登入時建立，並在您登出時修改。<br/>
+2. 為統計瀏覽人數及分析瀏覽模式：以了解網頁瀏覽的情況，做為改善服務的參考。<br/>
+3. 追蹤點選宣導廣告或參加行銷活動情形：在網站主辦的行銷活動時，有時會寫入Cookies資料以追蹤整個活動過程中，網友的參與程度及相關數據。<br/><br/>
+ 
+
+四、與第三者資料共用政策<br/>
+除以下情況外，本網站不會出售、出租或交換任何您的個人資料給其他團體或個人。<br/>
+1. 配合司法檢調單位或其他職權機關，透過合法程序進行調閱。<br/>
+2. 為了提供您其他服務或優惠權益，且經您本人同意。<br/>
+3. 基於主動衍伸政府網站服務效益之考量。<br/><br/>
+ 
+五、資訊安全保護措施<br/>
+由於網際網路資料的傳輸不能保證百分之百的安全，儘管本網站努力保護乘客的個人資料安全，在部分情況下會使用通行標準的SSL保全系統，保障資料傳送的安全性。由於資料傳輸過程牽涉您上網環境保全之良窳，我們並無法確信或保證乘客傳送或接收新北市政府網站資料的安全，乘客須注意並承擔網路資料傳輸之風險。乘客基於個人意願在網站透露的各種個人資料，可能會被他人收集和使用，如果您擔心這些困擾，您可以不用輸入這些資料。如果您在網路上公布可被他人讀取的個人資料時，可能會收到其他團體主動提供的廣告或垃圾郵件。請您諒解此部分所造成的後果均非本網站所能控制範圍，我們也無法負擔任何責任。<br/><br/>
+ 
+六、隱私權暨資訊安全保護政策修訂<br/>
+本網站會不定時修訂本項政策，以符合最新之隱私權保護規範。當我們在使用個人資料的規定做較大幅度修改時，我們會在網頁上張貼告示，通知您相關事項。<br/>
+	</div>
+  	</div>
+	<div class="modal-footer">
+	<div class="modal-footer-btn">
+		<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-danger btn-accept" data-bs-dismiss="modal" data-target-checkbox="#chk-terms2">同意</button>
+	</div>
+	</div>
+</div>
+</div>
+</div>
+
+	
+<script>
+$(document).on("click", ".btn-accept", function () {
+    const checkboxSelector = $(this).data("target-checkbox");
+    $(checkboxSelector).prop("checked", true);
+});
+	
+$(document).on("click", ".btn-cancel", function () {
+    const modal = $(this).closest(".modal");
+    const chk = modal.find(".btn-accept").data("target-checkbox");
+    $(chk).prop("checked", false);
+});
+</script>
+	
+</body>
+</html>

@@ -1,0 +1,304 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head >
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9,chrome=1,requiresActiveX=true" />
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+  	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+	<link rel="stylesheet" href="css/css.css" />
+	<link rel="stylesheet" href="css/bootstrap-custom.css" />
+	
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="jss/pills.js"></script>
+	<script src="jss/modal.js"></script>
+	
+
+    <title>水湳號自駕巴士預約系統平台</title>
+
+    <script type="text/javascript">
+	$(document).ready(function() {
+	$('body').hide().fadeIn(500);
+	});
+	</script>
+</head>
+<body>
+<div class="page">
+
+<header class="header">
+  <img src="images/logo2b.png" alt=""/>
+</header>
+	
+<div class="content">
+	
+<div class="inside-area">
+	<div class="inside-header">
+		<div class="header-user-area">
+		<span class="header-user-name">王小明，您好</span>
+		</div>
+	</div>
+	<div class="inside-body">
+	
+	<ul class="nav nav-pills">
+	<li class="nav-item">
+	<button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pill1">尚未使用</button>
+	</li>
+	<li class="nav-item">
+	<button class="nav-link" data-bs-toggle="pill" data-bs-target="#pill2">已使用</button>
+	</li>
+	<li class="nav-item">
+	<button class="nav-link" data-bs-toggle="pill" data-bs-target="#pill3">已取消</button>
+	</li>
+	<li class="nav-item">
+	<button class="nav-link" data-bs-toggle="pill" data-bs-target="#pill4">已逾期</button>
+	</li>
+	</ul>
+		
+	<div class="tab-content">
+	<div class="tab-pane fade show active" id="pill1">
+	<div class="reserve-list-area">
+
+	<div class="ticket-area">
+	<div class="ticket-state">
+		<span class="text-bold">預約狀態：</span>
+		<span>尚未使用</span>
+	</div>
+
+	<div class="ticket-info" >
+	<div class="ticket-info-route">
+	<div class="ticket-info-route-left">
+		<div class="ticket-info-title">上車站點</div>
+		<div>① 黎明經貿路口(會展中心)</div>
+	</div>
+	<div class="ticket-info-route-arrow">
+		<img src="images/arrow-right.svg" width="20" alt=""/>
+	</div>
+	<div class="ticket-info-route-right">
+		<div class="ticket-info-title">下車站點</div>
+		<div>③ 捷運文華高中站</div>
+	</div>
+	</div>
+		
+	<div class="ticket-info-date">
+	<div class="ticket-info-date-left">
+		<div class="ticket-info-title">預約時間</div>
+		<div>2025/05/20 10:00</div>
+	</div>
+	<div class="ticket-info-date-right">
+		<div class="ticket-info-title">預約人數</div>
+		<div>1位</div>
+	</div>
+	</div>
+		
+	<div class="ticket-info-footer">
+		<button class="reserve-status-qrcode" onClick="location.href='qrcode.html'">顯示QRCODE</button>
+		<button class="reserve-status-cancel" data-bs-toggle="modal" data-bs-target="#modal-cancel">取消預約</button>	
+	</div>
+	</div>
+	</div>
+
+	</div>
+	</div>
+	<div class="tab-pane fade" id="pill2">
+		
+	<div class="empty-text" style="display: none;">尚無資料</div>
+		
+	<div class="reserve-list-area">
+	<div class="ticket-area">
+	<div class="ticket-state-invalid">
+		<span class="text-bold">預約狀態：</span>
+		<span>已使用</span>
+	</div>
+
+	<div class="ticket-info">
+	<div class="ticket-info-route-invalid">
+	<div class="ticket-info-route-left">
+		<div class="ticket-info-title">上車站點</div>
+		<div>① 黎明經貿路口(會展中心)</div>
+	</div>
+	<div class="ticket-info-route-arrow">
+		<img src="images/arrow-right.svg" width="20" alt=""/>
+	</div>
+	<div class="ticket-info-route-right">
+		<div class="ticket-info-title">下車站點</div>
+		<div>③ 捷運文華高中站</div>
+	</div>
+	</div>
+		
+	<div class="ticket-info-date-invalid">
+	<div class="ticket-info-date-left">
+		<div class="ticket-info-title">使用時間</div>
+		<div>2025/05/20 10:00</div>
+	</div>
+	<div class="ticket-info-date-right">
+		<div class="ticket-info-title">預約人數</div>
+		<div>1位</div>
+	</div>
+	</div>
+	</div>
+	</div>
+			
+	<div class="ticket-area">
+	<div class="ticket-state-invalid">
+		<span class="text-bold">預約狀態：</span>
+		<span>已使用</span>
+	</div>
+
+	<div class="ticket-info">
+	<div class="ticket-info-route-invalid">
+	<div class="ticket-info-route-left">
+		<div class="ticket-info-title">上車站點</div>
+		<div>① 黎明經貿路口(會展中心)</div>
+	</div>
+	<div class="ticket-info-route-arrow">
+		<img src="images/arrow-right.svg" width="20" alt=""/>
+	</div>
+	<div class="ticket-info-route-right">
+		<div class="ticket-info-title">下車站點</div>
+		<div>③ 捷運文華高中站</div>
+	</div>
+	</div>
+		
+	<div class="ticket-info-date-invalid">
+	<div class="ticket-info-date-left">
+		<div class="ticket-info-title">使用時間</div>
+		<div>2025/05/20 10:00</div>
+	</div>
+	<div class="ticket-info-date-right">
+		<div class="ticket-info-title">預約人數</div>
+		<div>1位</div>
+	</div>
+	</div>
+	</div>
+	</div>
+			
+		
+	</div>
+	</div>
+	<div class="tab-pane fade" id="pill3">
+	<div class="empty-text" style="display: none;">尚無資料</div>
+
+	<div class="reserve-list-area">
+	<div class="ticket-area">
+	<div class="ticket-state-invalid">
+		<span class="text-bold">預約狀態：</span>
+		<span>已取消</span>
+	</div>
+
+	<div class="ticket-info">
+	<div class="ticket-info-route-invalid">
+	<div class="ticket-info-route-left">
+		<div class="ticket-info-title">上車站點</div>
+		<div>① 黎明經貿路口(會展中心)</div>
+	</div>
+	<div class="ticket-info-route-arrow">
+		<img src="images/arrow-right.svg" width="20" alt=""/>
+	</div>
+	<div class="ticket-info-route-right">
+		<div class="ticket-info-title">下車站點</div>
+		<div>③ 捷運文華高中站</div>
+	</div>
+	</div>
+		
+	<div class="ticket-info-date-invalid">
+	<div class="ticket-info-date-left">
+		<div class="ticket-info-title">取消時間</div>
+		<div>2025/05/18 10:00</div>
+	</div>
+	<div class="ticket-info-date-right">
+		<div class="ticket-info-title">預約人數</div>
+		<div>1位</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	<div class="tab-pane fade" id="pill4">
+		
+	<div class="empty-text" style="display: none;">尚無資料</div>
+	
+	<div class="reserve-list-area">
+	<div class="ticket-area">
+	<div class="ticket-state-invalid">
+		<span class="text-bold">預約狀態：</span>
+		<span>已逾期</span>
+	</div>
+
+	<div class="ticket-info">
+	<div class="ticket-info-route-invalid">
+	<div class="ticket-info-route-left">
+		<div class="ticket-info-title">上車站點</div>
+		<div>① 黎明經貿路口(會展中心)</div>
+	</div>
+	<div class="ticket-info-route-arrow">
+		<img src="images/arrow-right.svg" width="20" alt=""/>
+	</div>
+	<div class="ticket-info-route-right">
+		<div class="ticket-info-title">下車站點</div>
+		<div>③ 捷運文華高中站</div>
+	</div>
+	</div>
+		
+	<div class="ticket-info-date-invalid">
+	<div class="ticket-info-date-left">
+		<div class="ticket-info-title">逾期時間</div>
+		<div>2025/05/20 10:00</div>
+	</div>
+	<div class="ticket-info-date-right">
+		<div class="ticket-info-title">預約人數</div>
+		<div>1位</div>
+	</div>
+	</div>
+	</div>
+	</div>
+	</div>
+		
+	</div>
+	</div>
+	</div>
+</div>
+    
+<div class="build1"><img src="images/build1.png" width="300"  alt=""/></div>
+<div class="build2"><img src="images/build2.png" width="400"  alt=""/></div>
+<div class="build3"><img src="images/build3.png" width="300"  alt=""/></div>
+    
+</div>
+<div class="footer">	
+<div class="btn-area">
+	<button class="btn-back" onClick="location.href='main.html'">返回</button>
+</div>
+<div class="organizers">
+<span>主辦單位：臺中市交通局 ｜ 執行單位：勤崴國際</span>
+<span>連絡電話：0223635445</span>
+</div>
+</div>
+</div>
+	
+	
+<!-- Modal -->
+<div class="modal fade" id="modal-cancel">
+<div class="modal-dialog">
+<div class="modal-content">
+  <div class="modal-header">
+	<h5 class="modal-title">取消預約</h5>
+	<button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Close"><img src="images/close.svg" width="15" alt=""/></button>
+  </div>
+	<div class="modal-body">
+		<div class="modal-reserve-cancel-text">
+			確定是否取消預約?
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-secondary flex-1" data-bs-dismiss="modal">取消</button>
+		<button type="button" class="btn btn-danger flex-1" data-bs-dismiss="modal"  onClick="location.href='cancel-success.html'">確定</button>
+	</div>
+</div>
+</div>
+</div>
+	
+</body>
+</html>

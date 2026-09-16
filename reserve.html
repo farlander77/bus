@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head >
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9,chrome=1,requiresActiveX=true" />
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+	<link rel="stylesheet" href="css/css.css" />
+	<link rel="stylesheet" href="css/bootstrap-custom.css" />
+	
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="jss/modal.js"></script>
+
+    <title>水湳號自駕巴士預約系統平台</title>
+
+    <script type="text/javascript">
+	$(document).ready(function() {
+	$('body').hide().fadeIn(500);
+	});
+	</script>
+</head>
+<body>
+<div class="page">
+
+<header class="header">
+  <img src="images/logo2b.png" alt=""/>
+</header>
+	
+<div class="content">
+	
+<div class="inside-area">
+	<div class="inside-header">
+	<div class="header-user-area">
+		<span class="header-user-name">王小明，您好</span>
+	</div>
+	</div>
+	<div class="inside-body">
+		
+	<div class="bus-reserve-station-area">
+	<div class="bus-station-section">
+	<div class="bus-station-section-title">上車站點</div>
+	<select class="form-control">
+		<option>① 黎明經貿路口(會展中心)</option>
+		<option>② 臺中中央公園(去)</option>	
+		<option>③ 捷運文華高中站</option>	
+		<option>④ 臺中中央公園(返)</option>	
+		<option>⑤ 臺中綠美圖</option>
+		<option>⑥ 黎明經貿路口(會展中心)</option>
+	</select>	
+	</div>
+		
+	<div class="bus-station-section">
+	<div class="bus-station-section-title">下車站點</div>
+	<select class="form-control" >
+		<option>① 黎明經貿路口(會展中心)</option>
+		<option>② 臺中中央公園(去)</option>	
+		<option>③ 捷運文華高中站</option>	
+		<option>④ 臺中中央公園(返)</option>	
+		<option>⑤ 臺中綠美圖</option>
+		<option>⑥ 黎明經貿路口(會展中心)</option>
+	</select>
+	</div>
+	</div>
+	<div class="bus-station-section-title">上車站點</div>
+	<input type="date" class="form-control bus-reserve-time">
+		
+	<div class="reserve-list-area">
+	<table class="list-table">
+	<thead>
+	<tr>
+	<th>選班次</th>	
+	<th>發車時間</th>
+	<th>剩餘人數</th>
+	</tr>	
+	</thead>
+	<tbody>
+	<tr>
+	<td><input type="radio" name="time-reserve"></td>	
+	<td>10:00</td>
+	<td>5</td>
+	</tr>
+	<tr>
+	<td><input type="radio" name="time-reserve"></td>	
+	<td>12:30</td>
+	<td>7</td>
+	</tr>
+	<tr>
+	<td><input type="radio" name="time-reserve"></td>	
+	<td>13:30</td>
+	<td>1</td>
+	</tr>	
+	<tr>
+	<td><input type="radio" name="time-reserve"></td>	
+	<td>14:30</td>
+	<td>2</td>
+	</tr>	
+	<tr>
+	<td><input type="radio" name="time-reserve"></td>	
+	<td>15:30</td>
+	<td>3</td>
+	</tr>	
+	<tr>
+	<td>已額滿</td>	
+	<td>16:30</td>
+	<td>3</td>
+	</tr>	
+	</tbody>
+	</table>	
+	</div>
+		
+	<div class="reserve-people-area">
+	<div class="reserve-people-section">預約人數：</div>
+	<select class="form-control reserve-people-text">
+	<option>1人</option>	
+	<option>2人</option>	
+	<option>3人</option>	
+	<option>4人</option>
+	</select>	
+	</div>
+	</div>
+</div>
+    
+<div class="build1"><img src="images/build1.png" width="300"  alt=""/></div>
+<div class="build2"><img src="images/build2.png" width="400"  alt=""/></div>
+<div class="build3"><img src="images/build3.png" width="300"  alt=""/></div>
+
+</div>
+<div class="footer">	
+<div class="btn-area">
+	<button class="btn-back" onClick="location.href='main.html'">返回</button>
+	<button class="btn-reserve" onClick="location.href='qrcode.html'">預約</button>
+</div>
+<div class="organizers">
+<span>主辦單位：臺中市交通局 ｜ 執行單位：勤崴國際</span>
+<span>連絡電話：0223635445</span>
+</div>
+</div>
+</div>
+	
+</body>
+</html>

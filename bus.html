@@ -1,0 +1,195 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head >
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9,chrome=1,requiresActiveX=true" />
+	<meta name="format-detection" content="telephone=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+	<link rel="stylesheet" href="css/css.css" />
+	<link rel="stylesheet" href="css/bootstrap-custom.css" />
+	
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="jss/modal.js"></script>
+
+
+    <title>水湳號自駕巴士預約系統平台</title>
+
+    <script type="text/javascript">
+	$(document).ready(function() {
+	$('body').hide().fadeIn(500);
+	});
+	</script>
+	
+</head>
+<body>
+<div class="page">
+
+<header class="header">
+	<img src="images/logo2.png" alt=""/>
+</header>
+	
+<div class="content">
+	
+<div class="inside-area">
+	<div class="inside-body-dark" >
+	<div class="bus-station-name">臺中中央公園站</div>
+		
+	<div class="bus-information-area">
+	<span class="bus-information-name"><i class="fa fa-bus"></i> A車 ABC-XXXX</span>	
+	<span class="bus-information-status">即將進站</span>	
+	</div>
+		
+	<!--<div class="bus-information-area">
+	<span class="bus-information-name"><i class="fa fa-bus"></i> B車 ABC-XXXX</span>	
+	<span class="bus-information-status">即將進站</span>	
+	</div>-->
+		
+	<div class="bus-info-area">
+        
+        <div class="bus-info-section">
+		<div class="bus-info-item">
+		<div class="bus-info-title">水湳轉運中心</div>
+		<div class="bus"> 
+			<span class="bus-outward">ABC-1234</span>
+		</div>
+		</div>
+		</div>
+        
+		<div class="bus-info-section">
+		<div class="bus-info-item">
+		<div class="bus-info-title">臺中中央公園(去)</div>
+		<div class="bus"> 
+			<span class="bus-time-soon">即將進站</span>
+		</div>
+		</div>
+		</div>
+		
+		
+		<div class="bus-info-section">
+		<div class="bus-info-item">
+		<div class="bus-info-title">捷運文華高中站</div>	
+        <div class="bus"> 
+			<span class="bus-time">5分</span>
+		</div>
+		</div>
+		</div>	
+		
+		<div class="bus-info-section">
+		<div class="bus-info-item">
+		<div class="bus-info-title">臺中中央公園(返)</div>
+        <div class="bus"> 
+			<span class="bus-time">10分</span>
+		</div>
+		</div>
+		</div>
+		
+		<div class="bus-info-section">
+		<div class="bus-info-item">
+		<div class="bus-info-title">臺中綠美圖</div>
+        <div class="bus"> 
+			<span class="bus-time">15分</span>
+		</div>
+		</div>
+		</div>	
+		
+		<div class="bus-info-section">
+		<div class="bus-info-item">
+		<div class="bus-info-title">黎明經貿路口(會展中心)</div>
+        <div class="bus"> 
+			<span class="bus-time">20分</span>
+		</div>
+		</div>
+		</div>	
+        
+        <div class="bus-info-section">
+		<div class="bus-info-item">
+		<div class="bus-info-title">水湳轉運中心</div>
+        <div class="bus"> 
+			<span class="bus-time">25分</span>
+		</div>
+		</div>
+		</div>	
+	</div>
+</div>
+</div>
+
+<div class="build1"><img src="images/build1.png" width="300"  alt=""/></div>
+<div class="build2"><img src="images/build2.png" width="400"  alt=""/></div>
+<div class="build3"><img src="images/build3.png" width="300"  alt=""/></div>
+
+</div>
+<div class="footer">	
+<div class="btn-area">
+    <button class="btn-back" onClick="location.href='main.html'">返回</button>
+	<button class="btn-reserve" onClick="location.href='reserve.html'">預約</button>
+	<button class="btn-search" onClick="location.href='search.html'">預約查詢</button>
+</div>
+<div class="organizers">
+<span>主辦單位：臺中市交通局 ｜ 執行單位：勤崴國際</span>
+<span>連絡電話：0223635445</span>
+</div>
+</div>
+</div>
+	
+<script>
+setInterval(() => {
+    const busElements = document.querySelectorAll('.bus');
+    const busData = [];
+
+    // 1. 取得目前所有站點的 HTML 內容
+    busElements.forEach(el => {
+        busData.push(el.innerHTML);
+    });
+
+    // 2. 執行順移
+    const lastData = busData.pop();
+    busData.unshift(lastData);
+
+    // 3. 找出車子現在所在的 index
+    let outwardIndex = -1;
+    busData.forEach((content, i) => {
+        if (content.includes('bus-outward')) {
+            outwardIndex = i;
+        }
+    });
+
+    // 4. 重新渲染，並透過 visibility 控制顯示/隱藏
+    busElements.forEach((el, index) => {
+        // 先淡出
+        el.style.opacity = 0;
+        
+        setTimeout(() => {
+            // 先把內容塞進去（確保內容始終存在於 DOM 中）
+            el.innerHTML = busData[index];
+
+            // 判斷邏輯：
+            // 如果車子在第一站 (index 0)，全部設為可見
+            if (outwardIndex === 0) {
+                el.style.visibility = 'visible';
+            } else {
+                // 如果目前的索引小於車子所在位置，設為隱藏 (但內容還在)
+                if (index < outwardIndex) {
+                    el.style.visibility = 'hidden';
+                } else {
+                    el.style.visibility = 'visible';
+                }
+            }
+            
+            // 再淡入
+            el.style.opacity = 1;
+        }, 200); 
+    });
+
+}, 2000); 
+</script>
+
+
+
+
+	
+</body>
+</html>
