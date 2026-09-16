@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>路線 / 站點編輯器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b1020; --panel:#121a30; --panel-2:#0e1526; --line:#22304f;
+    --ink:#e7edfb; --ink-dim:#7f8fb5; --ink-faint:#4c5c82;
+    --go:#ec2c8a; --back:#2aa9ff; --accent:#3ce0cf; --sel:#f9a825; --pin:#2b5c88;
+  }
+  *{box-sizing:border-box; -webkit-user-select: none; /* Safari */ -moz-user-select: none;    /* Firefox */ -ms-user-select: none; /* IE/Edge */  user-select: none;       /* 標準語法 */}
+  html,body{margin:0;min-height:100%;
+    background:radial-gradient(1200px 700px at 80% -10%,#16213f 0%,transparent 60%),var(--bg);
+    color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:none;margin:0;padding:10px 28px 10px;}
+  .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--accent);margin:0px;}
+  h1{font-weight:900;font-size:clamp(22px,5vw,28px);margin:0 0 8px;}
+  .sub{color:var(--ink-dim);font-size:13.5px;line-height:1.6;margin:0 0 18px;}
+
+  .card{background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);
+    border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:14px;
+    box-shadow:0 24px 60px -30px rgba(0,0,0,.9);}
+    
+    .card-direction{ display: flex; flex-direction: row; gap:20px; }
+    
+    .card-left{ flex: 1;}
+    .card-right{ flex: 1;}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px;}
+  .section{border:1px solid var(--line);border-radius:12px;padding:12px 14px 4px;margin-bottom:12px;background:rgba(255,255,255,.015);}
+  .section .sect-title{font-family:"IBM Plex Mono",monospace;font-size:14\px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin:0 0 10px;font-weight:500;}
+  .tabs{display:flex;background:#0a1122;border:1px solid var(--line);border-radius:10px;padding:3px;}
+  .tab{font-family:"IBM Plex Mono",monospace;font-size:12px;padding:6px 12px;border-radius:7px;
+    cursor:pointer;color:var(--ink-dim);border:none;background:none;display:flex;align-items:center;gap:6px;}
+  .tab.on{color:#08111f;font-weight:600;}
+  .tab.go.on{background:var(--go);} .tab.back.on{background:var(--back);} .tab.stops.on{background:var(--pin);color:#fff;}
+  .tab i{width:10px;height:10px;border-radius:50%;}
+  .tab.go i{background:var(--go);} .tab.back i{background:var(--back);} .tab.stops i{background:var(--pin);}
+  .tab.on i{background:currentColor;opacity:.7;}
+  .btn{font-family:"IBM Plex Mono",monospace;font-size:12px;background:#1a2440;color:var(--ink-dim);
+    border:1px solid var(--line);border-radius:9px;padding:7px 11px;cursor:pointer;}
+  .btn:hover{color:var(--ink);border-color:#324268;}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  .toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-dim);cursor:pointer;
+    font-family:"IBM Plex Mono",monospace;}
+  .toggle input{accent-color:var(--accent);}
+  .sel{background:#0a1122;color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:4px 6px;font-family:"IBM Plex Mono",monospace;font-size:11px;cursor:pointer;}
+  .seg{display:flex;background:#0a1122;border:1px solid var(--line);border-radius:9px;padding:3px;}
+  .segbtn{font-family:"IBM Plex Mono",monospace;font-size:11px;padding:5px 10px;border:none;background:none;
+    color:var(--ink-dim);border-radius:6px;cursor:pointer;}
+  .segbtn.on{background:var(--accent);color:#08111f;font-weight:600;}
+  .ci{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-dim);font-family:"IBM Plex Mono",monospace;}
+  .ci input[type=color]{width:26px;height:22px;padding:0;border:1px solid var(--line);border-radius:6px;background:none;cursor:pointer;}
+  .ci[hidden]{display:none;}
+
+  .stopedit{display:none;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
+  .stopedit.show{display:flex;}
+  .stopedit input,.stopedit select{background:#0a1122;color:var(--ink);border:1px solid var(--line);
+    border-radius:9px;padding:8px 10px;font-family:"Noto Sans TC";font-size:13px;}
+  .stopedit input#nameIn{flex:1;min-width:130px;}
+  .stopedit input#numIn{width:64px;text-align:center;font-family:"IBM Plex Mono";}
+  .stopedit input:disabled,.stopedit select:disabled{opacity:.4;}
+
+  .stage{border-radius:11px;overflow:hidden;background:#dcdcdc;position:relative;touch-action:none;transition:border-radius .3s;}
+  .stage-wrap{width:min(100%,72vh);aspect-ratio:1692/2007;max-width:100%;margin:0 auto;resize:horizontal;overflow:hidden;position:relative;}
+  .stage-wrap::after{content:"";position:absolute;right:0;bottom:0;width:0;height:0;pointer-events:none;z-index:5;
+    border-style:solid;border-width:0 0 15px 15px;border-color:transparent transparent #3CE0CF transparent;}
+  .stage-wrap>.stage{width:100%;height:100%;}
+  .stage-wrap svg.map{width:100%;height:100%;}
+  .stage-wrap.mm{resize:both;width:min(100%,72vh);aspect-ratio:auto;overflow:hidden;}   /* 小地圖:外層可自由拖曳,stage 保持自己的固定尺寸 */
+  .stage.follow{max-width:100%;}
+  .stage.follow.shape-round{border-radius:30px;}
+  .stage.follow.shape-circle{border-radius:50%;}
+  svg.map{display:block;width:100%;height:auto;}
+  .go-line{fill:none;stroke:var(--go);stroke-width:var(--line-w,11);stroke-linejoin:miter;stroke-miterlimit:8;stroke-linecap:round;}
+  .back-line{fill:none;stroke:var(--back);stroke-width:var(--line-w,11);stroke-linejoin:miter;stroke-miterlimit:8;stroke-linecap:round;}
+  .dim{opacity:.25;}
+  .stop-ring{stroke:#fff;stroke-width:4;}
+  .stop-core{fill:#fff;pointer-events:none;}
+  .lbl-badge{fill:var(--pin);pointer-events:none;}
+  .lbl-badge-num{font-family:"IBM Plex Mono";font-weight:600;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+  .lbl-name{font-family:"Noto Sans TC";font-weight:700;fill:#17233f;paint-order:stroke;stroke:#f4f6fb;
+    stroke-width:7;stroke-linejoin:round;dominant-baseline:middle;pointer-events:none;}
+  .handle{fill:#fff;stroke-width:3;cursor:grab;}
+  .handle.sel{fill:var(--sel);}
+  .hit{fill:transparent;cursor:grab;}
+  .lbl-link{display:none;}
+  .lbl-hit{fill:transparent;cursor:grab;}
+
+  .readbar{display:flex;align-items:center;justify-content:space-between; margin-top:10px; font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint); padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: rgba(255, 255, 255, .015); margin: 0px 0px 10px 0px;}
+  .readbar b{color:var(--accent);}
+  .out h2{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-faint);margin:2px 2px 8px;font-weight:500;display:flex;justify-content:space-between;}
+  textarea{width:100%;height:180px;resize:vertical;background:#0a1122;color:#c4b5fd;border:1px solid var(--line);
+    border-radius:10px;padding:11px;font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.5;}
+  .hint{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-faint);line-height:1.9;margin-top:10px;}
+  .hint span{color:var(--accent);}
+  .maintabs{display:flex;gap:6px;margin-bottom:16px; margin-top: 16px;}
+  .mtab{font-family:"IBM Plex Mono",monospace;font-size:13px;padding:9px 16px;border-radius:10px;border:1px solid var(--line);
+    background:#0e1526;color:var(--ink-dim);cursor:pointer;}
+  .mtab.on{background:var(--accent);color:#08111f;font-weight:600;border-color:var(--accent);}
+  .srcrow{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#0e1526;}
+  .srcbadge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:#22304f;color:var(--ink-dim);white-space:nowrap;}
+  .srcbadge.primary{background:var(--accent);color:#08111f;}
+  .srcinfo{display:flex;flex-direction:column;flex:1;min-width:0;}
+  .srcinfo b{font-size:13px;color:var(--ink);}
+  .srcinfo span{font-size:11px;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .srcstatus{font-size:11px;color:var(--ink-dim);min-width:96px;}
+  .srcprev-tab{font-size:12px;padding:4px 10px;border-radius:999px;background:#22304f;color:var(--ink-dim);border:1px solid transparent;cursor:pointer;white-space:nowrap;}
+  .srcprev-tab.primary{background:#22304f;}
+  .srcprev-tab.on{background:var(--accent);color:#08111f;font-weight:600;}
+  #feedSrcPreview pre{margin:0;font-family:'IBM Plex Mono',monospace;font-size:11.5px;line-height:1.6;color:var(--ink-dim);white-space:pre-wrap;word-break:break-all;}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(4,8,18,.72);z-index:100;align-items:center;justify-content:center;}
+  .modal-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;width:min(440px,92vw);box-shadow:0 20px 60px rgba(0,0,0,.5);}
+  .modal-card h3{margin:0 0 16px;font-size:17px;color:var(--ink);}
+  .modal-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .modal-row>span:first-child{width:44px;font-size:13px;color:var(--ink-dim);}
+  .modal-row input[type=text]{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);font-size:13px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
+    
+    .marker-bg{ width: 26px; height: 22px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; cursor: pointer;}
+    .marker-gap{ padding: 0 10px; color: #3CE0CF; font-size: 12px; }
+    .output-inside{ display: flex; flex-direction: row; }
+    
+    .station{display: flex; background: #0a1122; border: 1px solid var(--line); border-radius: 10px; padding: 3px;}
+    .btn-genpage{ margin-left:auto; border-color:var(--accent); color:var(--accent) }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Route / stop editor</p>
+  <h1>路線 / 站點編輯器</h1>
+    <div class="maintabs">
+    <button class="mtab on" data-panel="map">地圖編輯</button>
+    <button class="mtab" data-panel="data">資料來源 (API)</button>
+    <button class="btn btn-genpage" id="genPage">產生頁面</button>
+  </div>
+  <div id="panelMap">
+
+  <div class="card card-direction">
+    <!-- 功能列 -->
+    <div class="card-left">
+    <div class="toolbar" style="justify-content: space-between">
+      <span>
+      <button class="btn" id="changeMap">更換底圖</button>
+      <input type="file" id="mapFile" accept=".svg,image/*" hidden>
+      
+      <button class="btn" id="undoBtn" disabled>↶ 還原</button>
+      <button class="btn" id="redoBtn" disabled>↷ 重做</button>
+      <label class="toggle"><input type="checkbox" id="snap">貼齊格線</label>
+      </span>
+      
+      <span>
+      
+      <button class="btn" id="exportCfg">匯出設定</button>
+      <button class="btn" id="importCfg">匯入設定</button>
+      </span>
+    </div>
+
+    <div class="section">
+      <div class="sect-title">路線編輯</div>
+      <div class="toolbar">
+        <div class="seg" id="rmSeg">
+          <button class="segbtn on" data-rm="split">去回程分色</button>
+          <button class="segbtn" data-rm="single">不分去回程</button>
+        </div>
+        <div class="tabs" id="tabs"></div>
+        <button class="btn" id="del" disabled>刪除選取點</button>
+        <label class="ci" id="colorCtl"><span id="colorLabel">去程</span>顏色<input type="color" id="colorInput" value="#ec2c8a"></label>
+      </div>
+      <div class="toolbar">
+        <label class="toggle">路線粗細 <input type="range" id="lineW" min="4" max="24" step="1" value="11" style="width:90px"><b id="lineWVal" style="color:var(--accent)">11</b></label>
+        <label class="toggle">貝茲曲線 <input type="range" id="radius" min="0" max="140" step="2" value="40" style="width:90px"><b id="rval" style="color:var(--accent);min-width:30px;display:inline-block">40</b></label>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sect-title">站點編輯</div>
+      <div class="toolbar">
+          <span class="station">
+              <button class="tab stops" id="stopsTab"><i></i>編輯站點</button>
+          </span>
+        <label class="toggle">文字大小 <input type="range" id="labelScale" min="0.5" max="2" step="0.1" value="1" style="width:90px"><b id="labelScaleVal" style="color:var(--accent)">1.0×</b></label>
+        <label class="toggle">站點大小 <input type="range" id="stopScale" min="0.5" max="2.5" step="0.1" value="1" style="width:90px"><b id="stopScaleVal" style="color:var(--accent)">1.0×</b></label>
+      </div>
+      <div class="stopedit" id="stopedit">
+        <input id="nameIn" placeholder="站名" disabled>
+        <input id="numIn" placeholder="編號" disabled>
+        <button class="btn" id="addStop">＋ 新增站點</button>
+        <button class="btn" id="delStop" disabled>刪除此站</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="sect-title">圖示設定</div>
+      <div class="toolbar">
+        <label class="toggle">圖示特效 <select id="busFx" class="sel"><option value="none">無</option><option value="single">單圈擴散</option><option value="multi" selected>多圈擴散</option></select></label>
+        <label class="toggle">圖示樣式 <select id="busStyle" class="sel"><option value="number" selected>序號</option><option value="icon">圖示</option><option value="arrow">箭頭</option></select></label>
+        <button class="btn" id="busIconBtn" style="display:none">上傳圖示</button>
+        <span id="busIconPrev" style="display:none;width:26px;height:26px;background:#0a1122;border:1px solid var(--line);border-radius:6px;padding:2px"></span>
+        <input type="file" id="busIconFile" accept=".svg" hidden>
+        <label class="toggle">圖示大小 <input type="range" id="busScale" min="0.5" max="2.5" step="0.1" value="1" style="width:90px"><b id="busScaleVal" style="color:var(--accent)">1.0×</b></label>
+      </div>
+      <div class="toolbar">
+        <label class="toggle"><input type="checkbox" id="busNoCore"> 移除背景</label>
+        <span class="marker-gap">|</span>
+        <label class="toggle">文字顏色 <input type="color" id="busFg" class="marker-bg" value="#3a2400"></label>
+        <label class="toggle">背景顏色 <input type="color" id="busBg" class="marker-bg" value="#f9a825"></label>
+        <label class="toggle">邊框顏色 <input type="color" id="busStroke" class="marker-bg" value="#ffffff"></label>
+        <label class="toggle">邊框粗細 <input type="range" id="busStrokeW" min="0" max="12" step="1" value="5" style="width:80px"><b id="busStrokeWVal" style="color:var(--accent)">5</b></label>
+        
+       </div>
+       <div class="toolbar">
+        <label class="toggle"><input type="checkbox" id="busNoRing"> 移除外框</label>
+        <span class="marker-gap">|</span>
+       </div>
+    </div>
+
+    <div class="section">
+      <div class="sect-title">輸出設定</div>
+      <div class="toolbar">
+        <div class="seg" id="mmView"><button class="segbtn on" data-mmv="full">全地圖</button><button class="segbtn" data-mmv="follow">小地圖</button></div>
+        <div class="output-inside">
+        <label class="toggle" style="padding: 0 10px;">顯示資訊</label>
+        <div class="seg" id="layoutSeg">
+            <button class="segbtn on" data-lay="pure">純地圖</button>
+            <button class="segbtn" data-lay="card">地圖資訊</button>
+            <button class="segbtn" data-lay="full">完整資訊</button>
+        </div>
+        </div>
+          
+       
+      </div>
+      <div class="toolbar">
+         <div class="seg" id="mmShape"><button class="segbtn on" data-mms="rect">矩形</button><button class="segbtn" data-mms="circle">圓形</button></div>
+        <label class="toggle" id="mmRadiusWrap">圓角 <input type="range" id="mmRadius" min="0" max="120" step="2" value="30" style="width:60px"><b id="mmRadiusVal" style="color:var(--accent);min-width:26px;display:inline-block">30</b></label>
+        <label class="toggle" id="mmZoomWrap">倍率 <input type="range" id="mmZoom" min="1.2" max="5" step="0.1" value="2.2" style="width:60px"><b id="mmZoomVal" style="color:var(--accent);min-width:34px;display:inline-block">2.2×</b></label>
+        <label class="toggle" id="mmSizeWrap">寬 <input type="number" id="mmW" value="320" min="120" max="900" step="10" style="width:55px"> <span id="mmHLbl">高 <input type="number" id="mmH" value="320" min="120" max="900" step="10" style="width:55px;"></span> </label>
+          <label class="toggle" id="mmSizeFill" style="display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="mmFill"> 填滿容器</label>
+      </div>
+    </div>
+    </div>
+      
+    <div class="card-right">
+    <div class="readbar">
+      <span>模式:<b id="modeLabel">去程</b></span>
+      <span id="selInfo">未選取</span>
+    </div>
+        
+        
+    <div class="stage-wrap">
+    <div class="stage">
+      <svg class="map" id="svg" viewBox="0 0 1692 2007" xmlns="http://www.w3.org/2000/svg">
+        <g id="basemap">
+          <defs><style>.cls-1{fill:#fff;}.cls-2{fill:none;}.cls-3{fill:#68b963;}.cls-4{fill:#dcdcdc;}</style></defs>
+          <rect class="cls-4" x="-8.06" y="-12.04" width="1713.4" height="2028.04"/>
+          <rect class="cls-1" x="901.48" y="533.5" width="151.02" height="9.56" transform="translate(-98.94 243.97) rotate(-13.55)"/>
+          <path class="cls-3" d="M630.62,510.82c13.1-5.44,126.66-51.75,126.66-51.75l88.33,139.69s-129.16,106.64-118.97,251.95c10.2,145.31,61.18,206.49,155.51,272.77,21.67,15.3,15.05,16.51,9.95,30.53-5.1,14.02-61.88,152.19-61.88,152.19l62.13,32.7s-7.65,22.94-11.47,44.61c-3.82,21.67-2.55,54.81-2.55,54.81h-113.44s58.63-107.07,8.92-235.81c-49.71-128.74-150.41-161.88-150.41-161.88,0,0,.28-272.78-1.27-302.09-1.59-29.97-7.08-106.93-12.86-195.83-1.09-16.81,8.26-26.46,21.36-31.9Z"/>
+          <rect class="cls-1" x="1303.19" y="-13.08" width="28.68" height="2021.43" transform="translate(-317.1 754.4) rotate(-28.67)"/>
+          <polygon class="cls-1" points="-27.29 657.64 -47.5 637.29 191.92 391.33 194.22 390.27 1172.58 -63.56 1184.62 -37.53 208.55 415.24 -27.29 657.64"/>
+          <path class="cls-1" d="M631.05,1566.62h-28.68v-728.02c0-13.59.14-24.58.25-34.27.58-47.11.59-48.01-19.19-86.24-25.2-48.7-217.46-382-219.4-385.36l24.84-14.33c7.93,13.75,194.53,337.23,220.03,386.51,22.44,43.36,23.02,49.27,22.4,99.78-.12,9.61-.25,20.51-.25,33.92v728.02Z"/>
+          <polygon class="cls-1" points="-27.29 850.95 -44.47 827.99 273.9 575.06 275.25 574.43 919.44 274.9 931.53 300.9 288.7 599.81 -27.29 850.95"/>
+          <path class="cls-1" d="M46.4,2032.6l-19.53-21.01c3.71-3.44,371.19-345.03,423.38-391.63,31.02-27.7,62.69-44.36,105.9-55.71,46.13-12.12,108.24-18.22,195.46-19.19,131.99-1.47,311.22-.72,418.3-.27,36.1.15,64.62.27,81.86.27,31.76,0,49.18-4.23,58.25-14.14,8.98-9.81,12.81-28.35,12.81-62.02v-286.36c0-37.59-21.73-74.07-54.61-129.28-7.14-11.98-14.52-24.37-22.39-37.96-18.5-31.95-26.37-44.85-31.58-53.39-7.67-12.58-9.27-15.2-28.71-52.02-13.85-26.24-29.02-43.76-46.59-64.05-22.04-25.46-47.03-54.31-75.03-106.99-48.87-91.97-221.29-403.2-223.03-406.34l25.09-13.9c1.74,3.13,174.27,314.59,223.26,406.78,26.47,49.82,50.33,77.37,71.38,101.67,17.94,20.72,34.89,40.29,50.28,69.44,19.02,36.04,20.54,38.52,27.83,50.48,5.27,8.65,13.24,21.72,31.91,53.95,7.78,13.44,15.12,25.75,22.21,37.66,34.05,57.17,58.65,98.47,58.65,143.96v286.36c0,30.73-2.46,61.86-20.33,81.38-15.05,16.44-38.8,23.46-79.41,23.46-17.3,0-45.84-.12-81.98-.27-107-.45-286.09-1.2-417.86.27-176.08,1.96-235.16,25.28-282.58,67.62-51.98,46.41-419.25,387.79-422.96,391.24Z"/>
+          <polygon class="cls-1" points="849.35 483.94 745.77 451.78 755.38 424.76 847.13 452.71 906.81 421.38 920.14 446.77 849.35 483.94"/>
+          <path class="cls-1" d="M780.91,2038.78l-23.59-16.31c.93-1.35,23.48-33.55,85.08-76.1,35.61-24.6,77.26-47.82,123.77-69.03,57.88-26.38,123.56-49.72,195.22-69.36,307.54-84.29,747.01-194.67,751.42-195.77l6.98,27.82c-4.4,1.1-443.58,111.41-750.82,195.62-157.27,43.11-254.46,96.1-308.3,132.97-58.17,39.83-79.55,69.87-79.76,70.17Z"/>
+          <path class="cls-1" d="M832.43,1968.1c-2.2-13.5-53.84-331.51-53.84-408.69,0-41.53,6.14-99.5,16.42-155.07,8.55-46.22,23.85-112.05,48.16-163.23,41.68-87.76,42.59-118.73,39.14-159.32-1.34-15.74-2.79-52.37-4.62-98.75-3.73-94.29-8.84-223.41-17.23-288.12-9.13-70.36-16.46-84.8-38.28-119.83-22.91-36.78-215.7-347.17-217.64-350.3l24.36-15.13c1.94,3.13,194.73,313.5,217.62,350.27,23.79,38.2,32.51,55.28,42.37,131.3,8.56,65.98,13.7,195.84,17.45,290.67,1.82,46.02,3.26,82.36,4.55,97.45,4.38,51.45-.46,87.01-41.81,174.06-40.33,84.91-61.81,232.27-61.81,306s52.94,400.79,53.47,404.08l-28.31,4.61Z"/>
+          <path class="cls-1" d="M1119.74,1838.27c-.44-1.24-44.36-124.51-66.51-189.52-19.94-58.53-44.78-79.87-46.08-80.95l-4.57-3.39-.75-5.51c-5.62-32.9-54.96-324.11-56.6-415.44-1.11-61.54-10.45-213.89-17.27-325.12-2.93-47.86-5.25-85.66-6.17-104.26-3.46-69.7-13.7-118.64-32.23-154.01-21.95-41.9-198.92-367.16-200.7-370.44l25.19-13.71c1.79,3.28,178.86,328.73,200.91,370.84,20.53,39.19,31.8,91.91,35.47,165.9.91,18.43,3.23,56.16,6.16,103.92,6.84,111.5,16.2,264.2,17.32,326.36,1.55,85.67,48.28,364.4,55.37,406.27,9.64,9.43,32.64,36.1,51.09,90.28,22.08,64.83,65.94,187.91,66.38,189.14l-27.02,9.63Z"/>
+          <path class="cls-1" d="M790.1,1046.35c-16.45,0-28.05-1.8-37.27-5.75-9.19-3.94-127.68-51.28-128.87-51.76l3.55-8.88c4.89,1.95,119.8,47.87,129.09,51.85,8.6,3.68,20.01,5.21,37.03,4.95,16.84-.26,330.86-23.93,382.53-28.54,46.58-4.16,99.26-21.73,152.36-50.8,52.92-28.98,448.91-247.18,452.91-249.38l4.61,8.37c-3.99,2.2-400,220.41-452.93,249.4-54.24,29.7-108.22,47.67-156.1,51.94-42.47,3.79-364.44,28.29-383.24,28.58-1.25.02-2.48.03-3.68.03Z"/>
+          <rect class="cls-1" x="956.91" y="1147.67" width="443.36" height="9.56" transform="translate(-31.73 33.37) rotate(-1.6)"/>
+          <polygon class="cls-1" points="254.89 602.83 178.52 420.4 -29.44 185.48 -8.06 166.37 203.11 404.88 281.34 591.76 254.89 602.83"/>
+          <polygon class="cls-2" points="1656.27 2022.29 32.81 2008.69 32.81 89.76 1656.27 103.36 1656.27 2022.29"/>
+          <rect class="cls-1" x="827.61" y="557.56" width="89.3" height="24.79" transform="translate(-165.6 477.63) rotate(-28.08)"/>
+        </g>
+        <path id="backPath" class="back-line"></path>
+        <path id="goPath" class="go-line"></path>
+        <g id="stops"></g>
+        <g id="handles"></g>
+      </svg>
+    </div>
+    </div>
+
+
+    </div>
+  </div>
+
+  <div class="card out">
+    <h2><span>座標 / 設定輸出</span><span style="display:flex;gap:8px"><button class="btn" id="copy">複製</button></span></h2>
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+    <textarea id="output" readonly></textarea>
+  </div>
+
+  <p class="hint">
+    路線模式:拖轉角 · 點空白 <span>插入轉角</span> · 站點模式:拖圓點 <span>改位置</span>、拖站名/號碼牌 <span>各自移動</span>、欄位 <span>改文字</span> · <span>＋新增站點</span>
+  </p>
+  </div><!-- /panelMap -->
+
+  <div id="panelData" style="display:none">
+    <div class="card">
+      <div class="out"><h2><span>1 · 資料來源</span><button class="btn" id="addSrc" style="border-color:var(--accent);color:var(--accent)">＋ 新增來源</button></h2></div>
+      <div id="feedSrcList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:6px"></div>
+
+      <div class="toolbar" style="margin-top:2px">
+        <span id="feedStatus" style="font-size:12px;color:var(--ink-dim)"></span>
+      </div>
+
+      <div class="toolbar" style="margin-top:6px">
+        <label class="toggle">2 · 定位模式</label>
+        <div class="seg" id="feedMode">
+          <button class="segbtn" data-fm="station">純站別</button>
+          <button class="segbtn on" data-fm="distance">距離</button>
+          <button class="segbtn" data-fm="percent">百分比</button>
+          <button class="segbtn" data-fm="eta">到站秒數</button>
+          <button class="segbtn" data-fm="gps">座標(GPS)</button>
+          <button class="segbtn" data-fm="custom">自訂函式</button>
+        </div>
+      </div>
+
+      <div id="feedMapWrap" style="display:flex;flex-direction:column;gap:8px;margin-top:4px"></div>
+
+      <div id="feedCodeWrap" style="display:none;margin-top:6px">
+        <div class="out"><h2><span>自訂轉換函式 — 可用 primary(主來源回應)、sources(各來源 id→回應),需 return {seg, p}</span></h2></div>
+        <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
+          <textarea id="feedCode" style="height:220px;flex:1;min-width:260px;resize:both" spellcheck="false"></textarea>
+          <div style="flex:1;min-width:220px;display:flex;flex-direction:column">
+            <div id="feedSrcTabs" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px"></div>
+            <div id="feedSrcPreview" style="resize:both;overflow:auto;height:220px;min-height:80px;min-width:180px;border:1px solid var(--line);border-radius:8px;background:#0a0f1c;padding:8px 10px"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn" id="feedTest" style="border-color:var(--accent);color:var(--accent)">▶ 測試(用抓取的資料算 seg / p)</button>
+        <span id="feedResult" style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-dim)"></span>
+      </div>
+      <p class="hint" style="margin-top:8px">定位相關欄位(站點清單、站序、已過站、距離…)一律來自「主要來源」;車牌、車輛經緯度、成功旗標等單值可各自指定來源。所有來源都會併入產生頁面並輪詢。</p>
+    </div>
+  </div>
+</div>
+
+<div id="srcModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3 id="srcModalTitle">新增資料來源</h3>
+    <label class="modal-row"><span>名稱</span><input type="text" id="srcName" placeholder="例:位置API / 車牌API"></label>
+    <label class="modal-row"><span>網址</span><input type="text" id="srcUrl" placeholder="https://…"></label>
+    <div class="modal-row"><span>類型</span>
+      <div style="display:flex;gap:14px;flex:1">
+        <label style="display:flex;align-items:center;gap:6px"><input type="radio" name="srcType" value="primary">主要來源</label>
+        <label style="display:flex;align-items:center;gap:6px"><input type="radio" name="srcType" value="other" checked>其他來源</label>
+      </div>
+    </div>
+    <p class="hint" style="margin:2px 0 0">主要來源提供站點清單與定位;其他來源只提供車牌/座標等單值。主要來源僅能有一個。</p>
+    <div class="modal-actions">
+      <button class="btn" id="srcCancel">取消</button>
+      <button class="btn" id="srcAdd" style="border-color:var(--accent);color:var(--accent)">加入</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 產生頁面用的樣板(瀏覽器不執行,純文字);頁面自己的 </script> 寫成 <\/script> 避免被提早關閉 ===== -->
+<script type="text/template" id="pageTemplate">
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公車即時動態</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0b1020;--panel:#121a30;--panel-2:#0e1526;--line:#22304f;--ink:#e7edfb;--ink-dim:#7f8fb5;--ink-faint:#4c5c82;
+    --go:#ec2c8a;--back:#2aa9ff;--bus:#f9a825;--accent:#3ce0cf;--pin:#2b5c88;--live:#5fe08a;--warn:#ffb454;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;min-height:100%;background:radial-gradient(1200px 700px at 80% -10%,#16213f 0%,transparent 60%),var(--bg);
+    color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:560px;margin:0 auto;padding:36px 22px 60px;}
+  .card{background:linear-gradient(160deg,var(--panel) 0%,var(--panel-2) 100%);border:1px solid var(--line);
+    border-radius:18px;padding:12px;box-shadow:0 24px 60px -30px rgba(0,0,0,.9);margin-bottom:16px;}
+  .card.bare{background:none;border:none;border-radius:0;padding:0;box-shadow:none;margin:0;}
+  body.map-only{background:none;}
+  body.map-only .wrap{max-width:none;padding:0;margin:0;}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:2px 6px 10px;
+    font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;color:var(--ink-faint);text-transform:uppercase;}
+  .legend{display:flex;gap:14px;}
+  .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--ink-dim);font-size:11px;}
+  .legend i{width:16px;height:4px;border-radius:2px;}
+  .live{display:inline-flex;align-items:center;gap:6px;color:var(--live);}
+  .live b{width:7px;height:7px;border-radius:50%;background:var(--live);animation:pulse 2s infinite;}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(95,224,138,.5)}70%{box-shadow:0 0 0 7px rgba(95,224,138,0)}100%{box-shadow:0 0 0 0 rgba(95,224,138,0)}}
+  .stage{border-radius:11px;overflow:hidden;background:#dcdcdc;transition:border-radius .3s;}
+  .stage.follow{max-width:100%;}
+  .stage.follow.shape-round{border-radius:30px;}
+  .stage.follow.shape-circle{border-radius:50%;}
+  svg.map{display:block;width:100%;height:auto;}
+  .settings{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:0 6px 10px;}
+  .seg{display:flex;background:#0a1122;border:1px solid var(--line);border-radius:9px;padding:3px;}
+  .segbtn{font-family:"IBM Plex Mono",monospace;font-size:11px;padding:5px 10px;border:none;background:none;color:var(--ink-dim);border-radius:6px;cursor:pointer;}
+  .segbtn.on{background:var(--accent);color:#08111f;font-weight:600;}
+  .go-line{fill:none;stroke:var(--go);stroke-width:var(--line-w,11);stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:8;}
+  .back-line{fill:none;stroke:var(--back);stroke-width:var(--line-w,11);stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:8;}
+  .lbl-link{display:none;}
+  .stop-ring{stroke:#fff;stroke-width:4;transition:fill .3s;}
+  .stop-core{fill:#fff;}
+  .lbl-badge{fill:var(--pin);}
+  .lbl-badge-num{font-family:"IBM Plex Mono";font-weight:600;fill:#fff;text-anchor:middle;dominant-baseline:central;}
+  .lbl-name{font-family:"Noto Sans TC";font-weight:700;fill:#17233f;paint-order:stroke;stroke:#f4f6fb;stroke-width:7;stroke-linejoin:round;dominant-baseline:middle;}
+  .bus-core{fill:var(--bus);}
+  .bus-pulse{transform-box:fill-box;transform-origin:center;animation:busPulse 2s ease-out infinite;}
+  @keyframes busPulse{0%{transform:scale(1);opacity:.45;}70%{opacity:0;}100%{transform:scale(2.6);opacity:0;}}
+  .bus-num{font-family:"IBM Plex Mono";font-weight:600;/*fill:#3a2400;*/text-anchor:middle;}
+  .bus-plate{font-family:"IBM Plex Mono";font-weight:600;fill:#17233f;paint-order:stroke;stroke:#f4f6fb;stroke-width:8;stroke-linejoin:round;}
+  .status h2,.log h2{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-faint);margin:2px 4px 12px;font-weight:500;}
+  .srow{display:flex;align-items:center;gap:12px;padding:11px 8px;border-top:1px solid #1a2540;}
+  .srow:first-of-type{border-top:none;}
+  .stag{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;border-radius:10px;background:var(--bus);
+    color:#3a2400;font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:14px;}
+  .smeta{min-width:0;flex:1;} .sstate{font-size:14.5px;font-weight:700;}
+  .ssub{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink-dim);margin-top:2px;}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .d-dwell{background:var(--live);} .d-run{background:var(--accent);} .d-near{background:var(--warn);}
+  .log .lines{font-family:"IBM Plex Mono",monospace;font-size:11.5px;line-height:1.85;color:var(--ink-dim);max-height:150px;overflow:hidden;}
+  .log .lines b{color:var(--ink);} .log .arr{color:var(--live);} .log .dep{color:var(--warn);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="bar"><div class="legend" id="legend"></div><span class="live"><b></b>LIVE</span></div>
+    <div class="stage">
+      <svg class="map" id="svg" viewBox="__VIEWBOX__" xmlns="http://www.w3.org/2000/svg">
+        <g id="basemap"><!--__BASEMAP__--></g>
+        <path id="backPath" class="back-line"></path>
+        <path id="goPath" class="go-line"></path>
+        <g id="pins"></g><g id="labels"></g><g id="buses"></g>
+      </svg>
+    </div>
+  </div>
+  <div class="card status"><h2>車輛狀態(由事件推得)</h2><div id="statusList"></div></div>
+  <div class="card log"><h2>事件流</h2><div class="lines" id="logLines"></div></div>
+</div>
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const svg=document.getElementById("svg");
+
+/*__CONFIG__*/
+
+// 站點順序:用 STOPS 的鍵順序,末端回到第一站收成環線
+const ORDER=[...Object.keys(STOPS), Object.keys(STOPS)[0]];
+document.documentElement.style.setProperty("--line-w",(typeof LINE_WIDTH!=="undefined")?LINE_WIDTH:11);
+
+function line(pts,r){
+  if(!r||r<=0) return "M "+pts.map(p=>p[0]+" "+p[1]).join(" L ");
+  let d="M "+pts[0][0]+" "+pts[0][1];
+  for(let i=1;i<pts.length-1;i++){
+    const a=pts[i-1],b=pts[i],c=pts[i+1];
+    const lAB=Math.hypot(b[0]-a[0],b[1]-a[1])||1,lBC=Math.hypot(c[0]-b[0],c[1]-b[1])||1,rr=Math.min(r,lAB/2,lBC/2);
+    const p1=[b[0]-(b[0]-a[0])/lAB*rr,b[1]-(b[1]-a[1])/lAB*rr],p2=[b[0]+(c[0]-b[0])/lBC*rr,b[1]+(c[1]-b[1])/lBC*rr];
+    d+=" L "+p1[0].toFixed(1)+" "+p1[1].toFixed(1)+" Q "+b[0]+" "+b[1]+" "+p2[0].toFixed(1)+" "+p2[1].toFixed(1);
+  }
+  return d+" L "+pts[pts.length-1][0]+" "+pts[pts.length-1][1];
+}
+const goPath=document.getElementById("goPath");   goPath.setAttribute("d",line(GO_PTS,CORNER_R));
+const backPath=document.getElementById("backPath"); backPath.setAttribute("d",line(BACK_PTS,CORNER_R));
+const goLen=goPath.getTotalLength(),backLen=backPath.getTotalLength(),total=goLen+backLen;
+function pointAtDist(dist){ if(dist<=goLen) return {p:goPath.getPointAtLength(dist),leg:"go"};
+  return {p:backPath.getPointAtLength(Math.min(dist-goLen,backLen)),leg:"back"}; }
+
+// 各站在環線上的弧長:沿環線單調前進搜尋最近點(自動解決去/返同區的歸屬)
+const ORDER_DIST=(function(){
+  const res=[]; let prev=0;
+  ORDER.forEach((k,idx)=>{
+    if(idx===0){res.push(0);prev=0;return;}
+    if(idx===ORDER.length-1){res.push(total);return;}
+    const s=STOPS[k]; let best=prev,bd=Infinity;
+    for(let d=prev; d<=total; d+=6){ const q=pointAtDist(d).p; const dd=(q.x-s.x)*(q.x-s.x)+(q.y-s.y)*(q.y-s.y); if(dd<bd){bd=dd;best=d;} }
+    res.push(best); prev=best;
+  });
+  return res;
+})();
+
+function applyColors(){
+  const root=document.documentElement.style;
+  if(routeMode==="single"){root.setProperty("--go",COL.single);root.setProperty("--back",COL.single);}
+  else{root.setProperty("--go",COL.go);root.setProperty("--back",COL.back);}
+  document.getElementById("legend").innerHTML = routeMode==="single"
+    ? '<span><i style="background:var(--go)"></i>路線</span>'
+    : '<span><i style="background:var(--go)"></i>去程</span><span><i style="background:var(--back)"></i>回程</span>';
+}
+function busColor(leg){ return routeMode==="single"?COL.single:(leg==="go"?COL.go:COL.back); }
+applyColors();
+
+// 站點:圓點 + 站名 + 號碼牌 合成單一群組(以圓點為錨,可整體縮放 → 固定大小)
+const LS=(typeof LABEL_SCALE!=="undefined")?LABEL_SCALE:1, SS=(typeof STOP_SCALE!=="undefined")?STOP_SCALE:1;
+const pinsG=document.getElementById("pins"),dotRings={},stopGroups={},FS=30*LS,BADGE=36*LS;
+for(const k in STOPS){ const s=STOPS[k];
+  const g=document.createElementNS(SVGNS,"g");
+  const dx=s.lx-s.x,dy=s.ly-s.y,bx=s.nx-s.x,by=s.ny-s.y;
+  const link=document.createElementNS(SVGNS,"line"); link.setAttribute("x1",dx);link.setAttribute("y1",dy);link.setAttribute("x2",0);link.setAttribute("y2",0);link.setAttribute("class","lbl-link");
+  const nm=document.createElementNS(SVGNS,"text"); nm.setAttribute("class","lbl-name"); nm.setAttribute("x",dx);nm.setAttribute("y",dy);nm.setAttribute("font-size",FS);nm.setAttribute("text-anchor","start");nm.textContent=s.name;
+  const badge=document.createElementNS(SVGNS,"circle"); badge.setAttribute("class","lbl-badge"); badge.setAttribute("cx",bx);badge.setAttribute("cy",by);badge.setAttribute("r",BADGE/2);
+  const bn=document.createElementNS(SVGNS,"text"); bn.setAttribute("class","lbl-badge-num"); bn.setAttribute("x",bx);bn.setAttribute("y",by);bn.setAttribute("font-size",(s.num.length>1?15:22)*LS);bn.textContent=s.num;
+  const ring=document.createElementNS(SVGNS,"circle"); ring.setAttribute("class","stop-ring"); ring.setAttribute("r",18*SS); ring.setAttribute("fill","var(--pin)");
+  const core=document.createElementNS(SVGNS,"circle"); core.setAttribute("class","stop-core"); core.setAttribute("r",7*SS);
+  g.append(link,nm,badge,bn,ring,core);
+  g.setAttribute("transform","translate("+s.x+","+s.y+")");
+  pinsG.appendChild(g); dotRings[k]=ring; stopGroups[k]={g:g,x:s.x,y:s.y};
+}
+
+// ===== 小地圖(跟隨)模式 =====
+const FULL_VB=svg.getAttribute("viewBox").split(/\s+/).map(Number);
+const FOLLOW_ZOOM_V=(typeof FOLLOW_ZOOM!=="undefined")?FOLLOW_ZOOM:2.2;
+const FOLLOW_W_V=(typeof FOLLOW_W!=="undefined")?FOLLOW_W:320;      // 小地圖框寬(px)
+const FOLLOW_H_V=(typeof FOLLOW_H!=="undefined")?FOLLOW_H:320;      // 小地圖框高(px);圓形時=寬
+const FOLLOW_FILL_V=(typeof FOLLOW_FILL!=="undefined")?FOLLOW_FILL:false;   // 依長寬比填滿容器
+const winW=FULL_VB[2]/FOLLOW_ZOOM_V, winH=winW*(FOLLOW_H_V/FOLLOW_W_V), MARKER_K_FOLLOW=1;   // 視窗比例對齊框比例,避免變形
+let viewMode="full",frameShape="rect",markerK=1;
+const cam={x:FULL_VB[0]+FULL_VB[2]/2,y:FULL_VB[1]+FULL_VB[3]/2};
+const lastBusPos={x:cam.x,y:cam.y};
+const stageEl=document.querySelector(".stage");
+const FRAME_CORNER_V=(typeof FRAME_CORNER!=="undefined")?FRAME_CORNER:30;
+function applyShape(){ if(viewMode==="follow") stageEl.style.borderRadius = frameShape==="circle" ? "50%" : FRAME_CORNER_V+"px"; }
+function applyMarkerScale(){ for(const k in stopGroups){const o=stopGroups[k];o.g.setAttribute("transform","translate("+o.x+","+o.y+") scale("+markerK+")");} }
+function setView(mode){ viewMode=mode; stageEl.classList.toggle("follow",mode==="follow"); applyShape();
+  if(mode==="follow"){markerK=MARKER_K_FOLLOW;cam.x=lastBusPos.x;cam.y=lastBusPos.y;
+    if(FOLLOW_FILL_V){stageEl.style.width="100%";stageEl.style.aspectRatio=FOLLOW_W_V+"/"+FOLLOW_H_V;stageEl.style.height="";}
+    else {stageEl.style.width=FOLLOW_W_V+"px";stageEl.style.height=FOLLOW_H_V+"px";stageEl.style.aspectRatio="";}
+  }
+  else {markerK=1;stageEl.style.width="";stageEl.style.height="";stageEl.style.aspectRatio="";stageEl.style.borderRadius="";svg.setAttribute("viewBox",FULL_VB.join(" "));}
+  applyMarkerScale(); }
+frameShape=(typeof FRAME_SHAPE!=="undefined")?FRAME_SHAPE:"rect";
+setView((typeof VIEW_MODE!=="undefined")?VIEW_MODE:"full");   // 依烤進來的設定套用
+
+// ===== 事件驅動:公車只吃 已到站/已離站 =====
+const CAP=0.82,CREEP=0.82/4.5;
+function makeBus(id,seg){return {id,seg,phase:"dwell",p:0,arriving:false,eta:null};}
+const buses=[makeBus("01",0)];   // 一台車;真實情況由資料動態產生
+const busesG=document.getElementById("buses");
+const PULSE_MAP={none:0,single:1,multi:3};   // 公車特效:未來可再擴充
+const PULSE_N=PULSE_MAP[(typeof BUS_FX!=="undefined")?BUS_FX:"multi"]??3, PULSE_DUR=2;   // 擴散圈數 / 一輪秒數(需與 CSS busPulse 一致)
+const BUS_STYLE_V=(typeof BUS_STYLE!=="undefined")?BUS_STYLE:"number";
+const BUS_SCALE_V=(typeof BUS_SCALE!=="undefined")?BUS_SCALE:1;
+const BUS_BG_V=(typeof BUS_BG!=="undefined")?BUS_BG:"#f9a825";
+const BUS_FG_V=(typeof BUS_FG!=="undefined")?BUS_FG:"#3a2400";
+const BUS_STROKE_V=(typeof BUS_STROKE!=="undefined")?BUS_STROKE:"#ffffff";
+const BUS_STROKE_W_V=(typeof BUS_STROKE_W!=="undefined")?BUS_STROKE_W:5;
+const BUS_NO_CORE_V=(typeof BUS_NO_CORE!=="undefined")?BUS_NO_CORE:false;
+const BUS_NO_RING_V=(typeof BUS_NO_RING!=="undefined")?BUS_NO_RING:false;
+function busIcon(){ const g=document.createElementNS(SVGNS,"g");   // 公車正面圖示:主體=文字色、車窗/燈=背景色
+  const add=(t,a)=>{const el=document.createElementNS(SVGNS,t);for(const k in a)el.setAttribute(k,a[k]);g.appendChild(el);};
+  add("rect",{x:-12,y:-12,width:24,height:22,rx:5,fill:BUS_FG_V});
+  add("rect",{x:-8,y:-8,width:16,height:8,rx:2,fill:BUS_BG_V});
+  add("circle",{cx:-6.5,cy:5,r:2,fill:BUS_BG_V}); add("circle",{cx:6.5,cy:5,r:2,fill:BUS_BG_V});
+  return g; }
+function fitSvg(str,target){   // 把上傳的 SVG 置中縮放成一個群組
+  const el=new DOMParser().parseFromString(str,"image/svg+xml").querySelector("svg"), g=document.createElementNS(SVGNS,"g");
+  if(!el) return g;
+  let vb=el.getAttribute("viewBox"); vb=vb?vb.split(/\s+/).map(Number):[0,0,parseFloat(el.getAttribute("width"))||100,parseFloat(el.getAttribute("height"))||100];
+  const s=target/Math.max(vb[2],vb[3]);
+  g.setAttribute("transform","translate("+(-(vb[0]+vb[2]/2)*s)+","+(-(vb[1]+vb[3]/2)*s)+") scale("+s+")");
+  [...el.childNodes].forEach(n=>g.appendChild(document.importNode(n,true))); return g; }
+function customBusIcon(){ return (typeof BUS_ICON_SVG!=="undefined"&&BUS_ICON_SVG)?fitSvg(BUS_ICON_SVG,44):busIcon(); }
+function busArrow(){   // 指向行徑方向的箭頭(預設指向 +x;外層 g 負責旋轉)
+  const outer=document.createElementNS(SVGNS,"g");
+  let art;
+  if(typeof BUS_ARROW_SVG!=="undefined"&&BUS_ARROW_SVG){ art=fitSvg(BUS_ARROW_SVG,40); }
+  else { art=document.createElementNS(SVGNS,"path"); art.setAttribute("d","M22,0 L-14,-17 L-5,0 L-14,17 Z");
+    art.setAttribute("fill",BUS_FG_V); art.setAttribute("stroke","#fff"); art.setAttribute("stroke-width","2"); art.setAttribute("stroke-linejoin","round"); }
+  outer.appendChild(art); return outer; }
+buses.forEach(b=>{ const g=document.createElementNS(SVGNS,"g");
+  const pulses=[];
+  for(let i=0;i<PULSE_N;i++){
+    const p=document.createElementNS(SVGNS,"circle"); p.setAttribute("class","bus-pulse");
+    p.setAttribute("r",30);p.setAttribute("fill","var(--bus)");
+    p.style.animationDelay=(i*PULSE_DUR/PULSE_N).toFixed(2)+"s"; pulses.push(p);
+  }
+  const ring = BUS_NO_RING_V?null:(function(){ const c=document.createElementNS(SVGNS,"circle"); c.setAttribute("r",34);c.setAttribute("fill","none");c.setAttribute("stroke-width",6); return c; })();
+  const core = BUS_NO_CORE_V?null:(function(){ const c=document.createElementNS(SVGNS,"circle"); c.setAttribute("r",30);c.setAttribute("fill",BUS_BG_V);c.setAttribute("stroke",BUS_STROKE_V);c.setAttribute("stroke-width",BUS_STROKE_W_V); return c; })();
+  let glyph;
+  if(BUS_STYLE_V==="icon"){ glyph=customBusIcon(); }
+  else if(BUS_STYLE_V==="arrow"){ glyph=busArrow(); b.arrowEl=glyph; }
+  else { glyph=document.createElementNS(SVGNS,"text"); glyph.setAttribute("class","bus-num");glyph.setAttribute("font-size",26);glyph.setAttribute("dominant-baseline","central");glyph.setAttribute("fill",BUS_FG_V);glyph.textContent=b.id; }
+  const plate=document.createElementNS(SVGNS,"text"); plate.setAttribute("class","bus-plate");plate.setAttribute("y",64);plate.setAttribute("text-anchor","middle");plate.setAttribute("font-size",34);
+  const parts=[...pulses]; if(ring)parts.push(ring); if(core)parts.push(core); parts.push(glyph,plate);
+  g.append(...parts);busesG.appendChild(g);b.g=g;b.ring=ring;b.pulses=pulses;b.plateEl=plate;
+});
+
+// ★★★ 接真實資料的入口:onEvent(車, "ARRIVE"/"DEPART") 控站別;onEvent(車,"ETA",秒數) 控速率 ★★★
+function onEvent(bus,type,value){
+  if(type==="DEPART"){bus.phase="transit";bus.p=0;bus.arriving=false;}
+  else if(type==="ARRIVE"){bus.arriving=true;}
+  else if(type==="ETA"){bus.eta=value;}          // 預估到站秒數 → 控制行駛速率
+  if(type!=="ETA") logEvent(bus,type);
+}
+// 模擬事件(沒有設定 API_URL 時的後備,用來讓畫面動起來)
+function scheduleDepart(bus){setTimeout(()=>{ onEvent(bus,"DEPART"); const T=rand(4,8); onEvent(bus,"ETA",T); scheduleArrive(bus,T); },rand(1600,3200));}
+function scheduleArrive(bus,T){setTimeout(()=>{onEvent(bus,"ARRIVE");}, T*1000*rand(0.9,1.15));}
+function rand(a,b){return a+Math.random()*(b-a);}
+
+const LAYOUT_V=(typeof LAYOUT!=="undefined")?LAYOUT:"card";
+if(LAYOUT_V!=="full") document.querySelectorAll(".card.status,.card.log").forEach(el=>el.remove());   // 完整版才保留狀態/事件流
+if(LAYOUT_V==="pure"){                                                          // 純地圖:再去掉上方列(去回程/LIVE)與卡片外框
+  const bar=document.querySelector(".bar"); if(bar) bar.remove();
+  const mapCard=svg.closest(".card"); if(mapCard) mapCard.classList.add("bare");
+  document.body.classList.add("map-only");
+}
+
+const logEl=document.getElementById("logLines"),logs=[];
+function logEvent(bus,type){
+  if(!logEl) return;                       // 只顯示地圖時無事件流
+  const now=new Date().toLocaleTimeString("zh-TW",{hour12:false});
+  const key=type==="DEPART"?ORDER[bus.seg]:ORDER[(bus.seg+1)%(ORDER.length-1)];
+  const lab=type==="DEPART"?'<span class="dep">已離站</span>':'<span class="arr">已到站</span>';
+  logs.unshift(now+"  <b>["+bus.id+"]</b> "+lab+" "+STOPS[key].name);
+  logs.length=Math.min(logs.length,8); logEl.innerHTML=logs.join("<br>");
+}
+function busDist(b){ const a=ORDER_DIST[b.seg],c=ORDER_DIST[b.seg+1];
+  return b.phase==="dwell"?a:a+(c-a)*Math.min(1,b.p); }
+
+const statusList=document.getElementById("statusList");
+if(statusList) buses.forEach(b=>{ const row=document.createElement("div"); row.className="srow";
+  row.innerHTML='<div class="stag">'+b.id+'</div><div class="smeta"><div class="sstate" id="st-'+b.id+'">—</div><div class="ssub" id="sub-'+b.id+'">—</div></div>';
+  statusList.appendChild(row);
+});
+function renderStatus(){
+  const active={},incoming={},N=ORDER.length-1;
+  buses.forEach(b=>{ const here=ORDER[b.seg],next=ORDER[(b.seg+1)%N];
+    if(b.phase==="dwell") active[here]=true;                         // 給地圖站點變色(一定要算)
+    else if(b.arriving||b.p>=0.92) incoming[next]=true;
+    const st=document.getElementById("st-"+b.id),sub=document.getElementById("sub-"+b.id);
+    if(st&&sub){                                                     // 只顯示地圖時面板已移除,略過
+      if(b.phase==="dwell"){st.innerHTML='<span class="dot d-dwell"></span>停靠中';sub.textContent=STOPS[here].name;}
+      else if(b.arriving||b.p>=0.92){st.innerHTML='<span class="dot d-near"></span>即將進站';sub.textContent="往 "+STOPS[next].name;}
+      else{st.innerHTML='<span class="dot d-run"></span>行駛中';sub.textContent="往 "+STOPS[next].name+(b.eta!=null?" · 約"+Math.ceil(b.eta)+"秒":"");}
+    }
+  });
+  for(const k in STOPS) dotRings[k].setAttribute("fill",active[k]?"#25a35a":incoming[k]?"#d98a2b":"var(--pin)");
+}
+
+let last=performance.now(),tick=0;
+function frame(now){ const dt=Math.min((now-last)/1000,.05);last=now; const N=ORDER.length-1; let primary=null;
+  buses.forEach(b=>{
+    if(DATA_DRIVEN){
+      if(b.gpsMode){ if(b.targetDist!=null){ if(b.dist==null)b.dist=b.targetDist; b.dist+=(b.targetDist-b.dist)*Math.min(1,dt*3); } b.phase="transit"; }
+      else if(b.paceEta){ if(b.eta!=null){ b.eta=Math.max(0,b.eta-dt); const remain=1-b.p, dp=b.eta>dt?remain*(dt/b.eta):remain; b.p=Math.min(0.97,b.p+dp); }
+        b.phase=b.p<0.03?"dwell":"transit"; b.dist=busDist(b); }
+      else { if(b.targetP!=null) b.p+=(b.targetP-b.p)*Math.min(1,dt*3); b.phase=b.p<0.03?"dwell":"transit"; b.dist=busDist(b); }
+    } else if(b.phase==="transit"){
+      if(b.arriving){ b.p+=(1-b.p)*Math.min(1,dt*6)+dt*0.2;
+        if(b.p>=0.999){b.seg=(b.seg+1)%N;b.phase="dwell";b.p=0;b.arriving=false;b.eta=null;scheduleDepart(b);} }
+      else if(b.eta!=null){ b.eta=Math.max(0,b.eta-dt); const remain=1-b.p, dp=b.eta>dt?remain*(dt/b.eta):remain; b.p=Math.min(0.97,b.p+dp); }
+      else b.p=Math.min(CAP,b.p+CREEP*dt);
+      b.dist=busDist(b);
+    } else b.dist=busDist(b);
+    const r=pointAtDist(b.dist||0); b.g.setAttribute("transform","translate("+r.p.x+","+r.p.y+") scale("+(markerK*BUS_SCALE_V)+")");
+    if(b.ring) b.ring.setAttribute("stroke",busColor(r.leg)); b.pulses.forEach(p=>p.setAttribute("fill",busColor(r.leg)));
+    if(b.arrowEl){ const q=pointAtDist(Math.min(total,(b.dist||0)+6)).p, dx=q.x-r.p.x, dy=q.y-r.p.y;
+      if(dx*dx+dy*dy>0.25){ const ang=Math.atan2(dy,dx)*180/Math.PI; if(b.heading==null)b.heading=ang; const dd=((ang-b.heading+540)%360)-180; b.heading+=dd*Math.min(1,dt*8); }
+      if(b.heading!=null) b.arrowEl.setAttribute("transform","rotate("+b.heading.toFixed(1)+")"); }
+    if(b===buses[0]) primary=r.p;
+  });
+  if(primary){ lastBusPos.x=primary.x; lastBusPos.y=primary.y;
+    if(viewMode==="follow"){
+      cam.x+=(primary.x-cam.x)*Math.min(1,dt*4); cam.y+=(primary.y-cam.y)*Math.min(1,dt*4);
+      let vx=cam.x-winW/2, vy=cam.y-winH/2;
+      vx=FULL_VB[2]>winW?Math.max(FULL_VB[0],Math.min(FULL_VB[0]+FULL_VB[2]-winW,vx)):FULL_VB[0]+(FULL_VB[2]-winW)/2;
+      vy=FULL_VB[3]>winH?Math.max(FULL_VB[1],Math.min(FULL_VB[1]+FULL_VB[3]-winH,vy)):FULL_VB[1]+(FULL_VB[3]-winH)/2;
+      svg.setAttribute("viewBox",vx+" "+vy+" "+winW+" "+winH);
+    }
+  }
+  tick+=dt; if(tick>0.25){renderStatus();tick=0;}
+  requestAnimationFrame(frame);
+}
+// ===== 資料來源:依 FEED 設定解析任意 API(方案A 模式對應 / 方案D 自訂函式)=====
+const FEEDS_V=(typeof FEEDS!=="undefined")?FEEDS:[];
+const FEED_V=(typeof FEED!=="undefined")?FEED:null;
+const HAS_FEED=FEEDS_V.length>0 && FEEDS_V.some(f=>f.url) && !!FEED_V;
+const DATA_DRIVEN=HAS_FEED;
+function getPath(o,p){ if(!p) return undefined; return String(p).split(".").reduce((a,k)=>(a==null?undefined:a[k]),o); }
+function pushLog(bus,txt){ if(!logEl) return;
+  const t=new Date().toLocaleTimeString("zh-TW",{hour12:false});
+  logs.unshift(t+"  <b>["+bus.id+"]</b> "+txt); logs.length=Math.min(logs.length,8); logEl.innerHTML=logs.join("<br>");
+}
+function solve3(M,b){ const A=M.map((r,i)=>[r[0],r[1],r[2],b[i]]);
+  for(let i=0;i<3;i++){ let piv=i; for(let r=i+1;r<3;r++) if(Math.abs(A[r][i])>Math.abs(A[piv][i])) piv=r; const tmp=A[i];A[i]=A[piv];A[piv]=tmp;
+    const d=A[i][i]||1e-9; for(let c=i;c<4;c++) A[i][c]/=d;
+    for(let r=0;r<3;r++) if(r!==i){ const fct=A[r][i]; for(let c=i;c<4;c++) A[r][c]-=fct*A[i][c]; } }
+  return [A[0][3],A[1][3],A[2][3]]; }
+function solveAffine(src,dst){ const A=[[0,0,0],[0,0,0],[0,0,0]],bx=[0,0,0],by=[0,0,0];
+  for(let i=0;i<src.length;i++){ const r=[src[i][0],src[i][1],1],X=dst[i][0],Y=dst[i][1];
+    for(let a=0;a<3;a++){ for(let b=0;b<3;b++) A[a][b]+=r[a]*r[b]; bx[a]+=r[a]*X; by[a]+=r[a]*Y; } }
+  const cx=solve3(A,bx),cy=solve3(A,by); return {ax:cx[0],bx:cx[1],cx:cx[2],ay:cy[0],by:cy[1],cy:cy[2]}; }
+function applyAffine(t,lon,lat){ return {x:t.ax*lon+t.bx*lat+t.cx, y:t.ay*lon+t.by*lat+t.cy}; }
+function nearestDist(mx,my){ let best=0,bd=Infinity; for(let d=0;d<=total;d+=8){ const q=pointAtDist(d).p; const dd=(q.x-mx)*(q.x-mx)+(q.y-my)*(q.y-my); if(dd<bd){bd=dd;best=d;} } return best; }
+function stationField(key,item,sidVal,f,samples){
+  const srcId=(FEED_V.src||{})[key];
+  if(!srcId||srcId===FEED_V.primary) return getPath(item,f[key]);
+  const s=samples&&samples[srcId]; if(!s) return undefined;
+  const arr=getPath(s,(FEED_V.srcList||{})[key]); if(!Array.isArray(arr)) return undefined;
+  if(sidVal==null) return undefined;
+  const m=arr.find(x=>String(getPath(x,(FEED_V.srcKey||{})[key]))===String(sidVal));
+  return m?getPath(m,f[key]):undefined;
+}
+function feedCompute(res, sv, samples){             // res=主來源;sv(key)=取單值(可挑來源)
+  if(!FEED_V) return null; sv=sv||(()=>undefined); samples=samples||{};
+  if(FEED_V.mode==="custom"){
+    try{ const fn=new Function("primary","sources",FEED_V.transform||"return null;"); const r=fn(res, samples); return (r&&r.seg!=null)?{seg:r.seg,p:(r.p||0)}:null; }
+    catch(e){ return null; }
+  }
+  const list=getPath(res,FEED_V.listPath); if(!Array.isArray(list)||!list.length) return null;
+  const f=FEED_V.fields||{}, N=ORDER.length-1;
+  const rawStops=f.sort?[...list].sort((a,b)=>getPath(a,f.sort)-getPath(b,f.sort)):list.slice();
+  const stops=rawStops.map(it=>{ const sidVal=f.stopId?getPath(it,f.stopId):undefined;
+    return { arrived:stationField("arrived",it,sidVal,f,samples), distNext:stationField("distNext",it,sidVal,f,samples), distStop:stationField("distStop",it,sidVal,f,samples),
+      percent:stationField("percent",it,sidVal,f,samples), eta:stationField("eta",it,sidVal,f,samples), stopLat:getPath(it,f.stopLat), stopLon:getPath(it,f.stopLon) }; });
+  if(FEED_V.mode==="gps"){                           // 座標型:仿射轉換 + 貼齊路線
+    const csrc=[],cdst=[],n=Math.min(stops.length,N);
+    for(let i=0;i<n;i++){ const lo=stops[i].stopLon,la=stops[i].stopLat,es=STOPS[ORDER[i]];
+      if(lo!=null&&la!=null&&es){ csrc.push([+lo,+la]); cdst.push([es.x,es.y]); } }
+    if(csrc.length<3) return null;
+    const t=solveAffine(csrc,cdst), blon=sv("busLon"), blat=sv("busLat");
+    if(blon==null||blat==null) return null;
+    const pt=applyAffine(t,+blon,+blat); return {dist:nearestDist(pt.x,pt.y)};
+  }
+  let seg=0; if(f.arrived){ for(let i=0;i<Math.min(stops.length,N);i++) if(stops[i].arrived) seg=i; }
+  if(FEED_V.mode==="eta"){                            // 到站秒數型:時間配速
+    const nxt=stops[seg+1]||stops[stops.length-1]; let eta=+nxt.eta;
+    if(FEED_V.etaType==="epoch"){ const now=f.now?+sv("now"):(Date.now()/1000); eta=eta-now; }
+    return {seg, eta:Math.max(0,eta||0)};
+  }
+  let p=0;
+  if(FEED_V.mode==="distance"){ const cur=stops[seg],nxt=stops[seg+1]||stops[stops.length-1];
+    if(cur.distStop==null||nxt.distStop==null||nxt.distNext==null) return null;
+    const segLen=Math.max(1,nxt.distStop-cur.distStop); p=1-(nxt.distNext/segLen); }
+  else if(FEED_V.mode==="percent"){ let pv=stops[seg].percent; if(pv>1)pv/=100; p=pv||0; }
+  return {seg,p:Math.max(0,Math.min(1,p))};
+}
+async function poll(){
+  try{
+    const samples={};
+    await Promise.all(FEEDS_V.map(f=>fetch(f.url).then(r=>r.json()).then(j=>{samples[f.id]=j;}).catch(()=>{})));
+    const primaryRes=samples[FEED_V.primary]; if(!primaryRes) return;
+    const srcMap=FEED_V.src||{}, f=FEED_V.fields||{};
+    const sv=k=>{ const sid=srcMap[k]||FEED_V.primary; const s=samples[sid]; return s?getPath(s,f[k]):undefined; };
+    if(f.success && !sv("success")) return;
+    const r=feedCompute(primaryRes, sv, samples); if(!r) return;
+    const bus=buses[0];
+    if(f.plate){ const pl=sv("plate"); if(pl!=null){ bus.plate=String(pl); if(bus.plateEl) bus.plateEl.textContent=String(pl); } }
+    if(r.dist!=null){ bus.gpsMode=true; bus.paceEta=false; bus.targetDist=r.dist; }                 // 座標型
+    else if(r.eta!=null){ bus.gpsMode=false; bus.paceEta=true;                                        // 到站秒數型
+      if(r.seg!==bus.seg){ bus.seg=r.seg; bus.p=0; pushLog(bus,'<span class="arr">已到站</span> '+STOPS[ORDER[r.seg]].name); } bus.eta=r.eta; }
+    else { bus.gpsMode=false; bus.paceEta=false;                                                      // 站別/距離/百分比/自訂
+      if(r.seg!==bus.seg){ bus.seg=r.seg; bus.p=r.p; pushLog(bus,'<span class="arr">已到站</span> '+STOPS[ORDER[r.seg]].name); } bus.targetP=r.p; }
+  }catch(err){ /* 網路/CORS 失敗時靜默,下一輪再試 */ }
+}
+if(HAS_FEED){ poll(); setInterval(poll,5000); } else { buses.forEach(scheduleDepart); }
+
+renderStatus(); requestAnimationFrame(frame);
+<\/script>
+</body>
+</html>
+</script>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const svg=document.getElementById("svg");
+const goPath=document.getElementById("goPath");
+const backPath=document.getElementById("backPath");
+const stopsG=document.getElementById("stops");
+const handlesG=document.getElementById("handles");
+
+const routes={
+  go:[[705,256],[757,279],[873,505],[880,1113],[793,1505],[835,1552],[957,1567],[1047,1622],[1104,1774],[1086,1836],[1013,1877]],
+  back:[[1013,1877],[885,1905],[832,1822],[809,1492],[900,1138],[901,828],[864,609],[705,256]],
+};
+const STOPS=[
+  {key:"water", x:705, y:256,  lx:790, ly:172,  nx:760, ny:172,  name:"水湳轉運中心",          num:"1·7"},
+  {key:"park_o",x:831, y:1345, lx:578, ly:1360, nx:548, ny:1360, name:"臺中中央公園(去)",       num:"2"},
+  {key:"wenhua",x:1013,y:1877, lx:1105,ly:1955, nx:1075,ny:1955, name:"捷運文華高中站",         num:"3"},
+  {key:"park_r",x:814, y:1340, lx:902, ly:1268, nx:872, ny:1268, name:"臺中中央公園(返)",       num:"4"},
+  {key:"green", x:808, y:541,  lx:575, ly:545,  nx:545, ny:545,  name:"臺中綠美圖",             num:"5"},
+  {key:"liming",x:764, y:367,  lx:845, ly:327,  nx:815, ny:327,  name:"黎明經貿路口(會展中心)",  num:"6"},
+];
+
+let routeMode="split";                 // "split"=去回程分色, "single"=不分(全程)
+let outView="full", outShape="rect", outZoom=2.2, outFollowW=320, outFollowH=320, outFollowFill=false, outMmCorner=30;   // 小地圖:模式/外框/倍率/框寬高/填滿/矩形圓角容器
+let outBusBg="#f9a825", outBusFg="#3a2400", outBusStroke="#ffffff", outBusStrokeW=5, outBusNoCore=false, outBusNoRing=false;   // 公車:背景/文字/邊框色 + 邊框粗細 + 移除背景圓/外圈
+let outBusFx="multi", outBusStyle="number", outBusIconSvg="", outBusArrowSvg="", outBusScale=1, outLabelScale=1, outStopScale=1, outLineW=11, outLayout="pure", outApiUrl="";   // 公車特效/樣式/自訂圖示/自訂箭頭/大小 + 文字/站點/路線 + 版面 + 資料API
+let mode="go";                          // 目前分頁: go|back|all|stops
+let sel=null;                           // 選取: null | {leg,i} | {stop:i}
+let dragging=false, snap=false, R=40;
+let undoStack=[], redoStack=[];   // 還原/重做:狀態快照堆疊
+function snapshot(){ return JSON.stringify({go:routes.go,back:routes.back,STOPS,R,COL:{...COL},routeMode}); }
+function restoreSnapshot(str){ const s=JSON.parse(str);
+  routes.go=s.go; routes.back=s.back; STOPS.length=0; s.STOPS.forEach(x=>STOPS.push(x));
+  R=s.R; COL.go=s.COL.go; COL.back=s.COL.back; COL.single=s.COL.single; routeMode=s.routeMode;
+  document.getElementById("radius").value=R; document.getElementById("rval").textContent=R;
+  setSeg("rmSeg","rm",routeMode); mode=routeMode==="single"?"all":"go"; sel=null;
+  renderTabs(); syncColorCtl(); applyColors();
+}
+function pushUndo(){ const s=snapshot(); if(undoStack.length && undoStack[undoStack.length-1]===s) return; undoStack.push(s); if(undoStack.length>60) undoStack.shift(); redoStack.length=0; updateUndoBtn(); }
+function undo(){ if(!undoStack.length) return; redoStack.push(snapshot()); restoreSnapshot(undoStack.pop()); updateUndoBtn(); }
+function redo(){ if(!redoStack.length) return; undoStack.push(snapshot()); restoreSnapshot(redoStack.pop()); updateUndoBtn(); }
+function updateUndoBtn(){ const u=document.getElementById("undoBtn"),r=document.getElementById("redoBtn"); if(u)u.disabled=!undoStack.length; if(r)r.disabled=!redoStack.length; }
+const _arm={}; function armSnap(k){_arm[k]=true;} function commitSnap(k){ if(_arm[k]){ pushUndo(); _arm[k]=false; } }
+const COL={ go:"#ec2c8a", back:"#2aa9ff", single:"#7c3aed" };
+const GRID=20;
+const TABCFG={
+  split:[{m:"go",label:"去程",cls:"go"},{m:"back",label:"回程",cls:"back"}],
+  single:[{m:"all",label:"全程",cls:"go"}],
+};
+
+function line(pts,r){
+  if(!r||r<=0) return "M "+pts.map(p=>`${p[0]} ${p[1]}`).join(" L ");
+  let d=`M ${pts[0][0]} ${pts[0][1]}`;
+  for(let i=1;i<pts.length-1;i++){
+    const a=pts[i-1],b=pts[i],c=pts[i+1];
+    const lAB=Math.hypot(b[0]-a[0],b[1]-a[1])||1,lBC=Math.hypot(c[0]-b[0],c[1]-b[1])||1;
+    const rr=Math.min(r,lAB/2,lBC/2);
+    const p1=[b[0]-(b[0]-a[0])/lAB*rr,b[1]-(b[1]-a[1])/lAB*rr];
+    const p2=[b[0]+(c[0]-b[0])/lBC*rr,b[1]+(c[1]-b[1])/lBC*rr];
+    d+=` L ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} Q ${b[0]} ${b[1]} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  d+=` L ${pts.at(-1)[0]} ${pts.at(-1)[1]}`;
+  return d;
+}
+function toVB(evt){const pt=svg.createSVGPoint();pt.x=evt.clientX;pt.y=evt.clientY;
+  const p=pt.matrixTransform(svg.getScreenCTM().inverse());return {x:p.x,y:p.y};}
+function snapv(v){return snap?Math.round(v/GRID)*GRID:Math.round(v);}
+function C(cx,cy,r,cls){const c=document.createElementNS(SVGNS,"circle");
+  c.setAttribute("cx",cx);c.setAttribute("cy",cy);c.setAttribute("r",r);if(cls)c.setAttribute("class",cls);return c;}
+function TX(x,y,str,cls,fs,anchor){const t=document.createElementNS(SVGNS,"text");
+  t.setAttribute("x",x);t.setAttribute("y",y);t.setAttribute("class",cls);t.setAttribute("font-size",fs);
+  if(anchor)t.setAttribute("text-anchor",anchor);t.textContent=str;return t;}
+
+function render(){
+  goPath.setAttribute("d",line(routes.go,R));
+  backPath.setAttribute("d",line(routes.back,R));
+  goPath.classList.toggle("dim", routeMode!=="single" && mode==="back");
+  backPath.classList.toggle("dim", routeMode!=="single" && mode==="go");
+
+  const selStop = sel&&sel.stop!=null ? sel.stop : null;
+  stopsG.innerHTML="";
+  STOPS.forEach((s,i)=>{
+    const selHere=(mode==="stops"&&selStop===i);
+    const link=document.createElementNS(SVGNS,"line");
+    link.setAttribute("x1",s.lx);link.setAttribute("y1",s.ly);
+    link.setAttribute("x2",s.x);link.setAttribute("y2",s.y);link.setAttribute("class","lbl-link");
+    stopsG.append(link);
+    if(mode==="stops"){const hit=C(s.x,s.y,44,"hit");hit.dataset.si=i;hit.dataset.t="dot";stopsG.append(hit);}
+    const ring=C(s.x,s.y,18*outStopScale,"stop-ring");ring.setAttribute("fill",selHere?"var(--sel)":"var(--pin)");
+    if(mode==="stops"){ring.dataset.si=i;ring.dataset.t="dot";}
+    stopsG.append(ring,C(s.x,s.y,7*outStopScale,"stop-core"));
+    if(mode==="stops"){
+      const w=Math.max(40,s.name.length*30*outLabelScale);
+      const rh=document.createElementNS(SVGNS,"rect");
+      rh.setAttribute("x",s.lx-6);rh.setAttribute("y",s.ly-24*outLabelScale);rh.setAttribute("width",w+12);rh.setAttribute("height",48*outLabelScale);
+      rh.setAttribute("class","lbl-hit");rh.dataset.si=i;rh.dataset.t="label";stopsG.append(rh);
+    }
+    stopsG.append(TX(s.lx,s.ly,s.name,"lbl-name",30*outLabelScale,"start"));
+    if(mode==="stops"){const nh=C(s.nx,s.ny,34*outLabelScale,"lbl-hit");nh.dataset.si=i;nh.dataset.t="num";stopsG.append(nh);}
+    const badge=C(s.nx,s.ny,18*outLabelScale,"lbl-badge");if(selHere)badge.setAttribute("fill","var(--sel)");
+    stopsG.append(badge);
+    stopsG.append(TX(s.nx,s.ny,s.num,"lbl-badge-num",(s.num.length>1?15:22)*outLabelScale,"middle"));
+  });
+
+  handlesG.innerHTML="";
+  const legs = mode==="go"?["go"] : mode==="back"?["back"] : mode==="all"?["go","back"] : [];
+  legs.forEach(leg=>{
+    const col=routeMode==="single"?COL.single:(leg==="go"?COL.go:COL.back);
+    routes[leg].forEach((p,i)=>{
+      const hit=C(p[0],p[1],46,"hit");hit.dataset.leg=leg;hit.dataset.i=i;
+      const isSel=sel&&sel.leg===leg&&sel.i===i;
+      const h=C(p[0],p[1],13,"handle"+(isSel?" sel":""));h.setAttribute("stroke",col);h.dataset.leg=leg;h.dataset.i=i;
+      handlesG.append(hit,h);
+    });
+  });
+
+  document.getElementById("modeLabel").textContent = mode==="go"?"去程":mode==="back"?"回程":mode==="all"?"全程":"站點";
+  const routeDel=document.getElementById("del");
+  routeDel.style.display = mode==="stops"?"none":"";
+  routeDel.disabled = !(sel&&sel.leg!=null);
+  document.getElementById("selInfo").textContent =
+    sel==null ? "未選取"
+    : sel.stop!=null ? `選取 ${STOPS[sel.stop].name}`
+    : `選取 ${sel.leg==="go"?"去程":"回程"} #${sel.i} · [${routes[sel.leg][sel.i][0]}, ${routes[sel.leg][sel.i][1]}]`;
+  syncStopPanel();
+  updateOutput();
+}
+
+function syncStopPanel(){
+  const on=mode==="stops";
+  document.getElementById("stopedit").classList.toggle("show",on);
+  const selStop=sel&&sel.stop!=null?sel.stop:null;
+  const has=on&&selStop!==null;
+  const nameIn=document.getElementById("nameIn"),numIn=document.getElementById("numIn");
+  nameIn.disabled=!has; numIn.disabled=!has;
+  document.getElementById("delStop").disabled=!has;
+  if(has){const s=STOPS[selStop];nameIn.value=s.name;numIn.value=s.num;}
+  else{nameIn.value="";numIn.value="";}
+}
+
+function configCode(){
+  const stopLines=STOPS.map(s=>`  ${s.key}:{x:${s.x},y:${s.y},lx:${s.lx},ly:${s.ly},nx:${s.nx},ny:${s.ny},name:"${s.name}",num:"${s.num}"},`).join("\n");
+  const fmt=a=>"["+a.map(p=>`[${p[0]},${p[1]}]`).join(",")+"]";
+  const fc=feedConfig();
+  return `const routeMode="${routeMode}";
+const COL={go:"${COL.go}",back:"${COL.back}",single:"${COL.single}"};
+const VIEW_MODE="${outView}";
+const FRAME_SHAPE="${outShape}";
+const FRAME_CORNER=${outMmCorner};
+const FOLLOW_ZOOM=${outZoom};
+const FOLLOW_W=${outFollowW};
+const FOLLOW_H=${outFollowH};
+const FOLLOW_FILL=${outFollowFill};
+const BUS_FX="${outBusFx}";
+const BUS_STYLE="${outBusStyle}";
+const BUS_ICON_SVG=${JSON.stringify(outBusIconSvg)};
+const BUS_ARROW_SVG=${JSON.stringify(outBusArrowSvg)};
+const BUS_SCALE=${outBusScale};
+const BUS_BG=${JSON.stringify(outBusBg)};
+const BUS_FG=${JSON.stringify(outBusFg)};
+const BUS_STROKE=${JSON.stringify(outBusStroke)};
+const BUS_STROKE_W=${outBusStrokeW};
+const BUS_NO_CORE=${outBusNoCore};
+const BUS_NO_RING=${outBusNoRing};
+const LABEL_SCALE=${outLabelScale};
+const STOP_SCALE=${outStopScale};
+const LINE_WIDTH=${outLineW};
+const LAYOUT="${outLayout}";
+const FEEDS=${JSON.stringify(fc.feeds)};
+const FEED=${JSON.stringify(fc.feed)};
+const CORNER_R=${R};
+const STOPS={
+${stopLines}
+};
+const GO_PTS=${fmt(routes.go)};
+const BACK_PTS=${fmt(routes.back)};`;
+}
+function updateOutput(){ document.getElementById("output").value=configCode(); }
+
+function generatePage(){
+  let tpl=document.getElementById("pageTemplate").textContent;
+  tpl=tpl.split("<\\/script>").join("<\/script>");        // 還原被跳脫的關閉標籤
+  tpl=tpl.split("__VIEWBOX__").join(baseViewBox);
+  tpl=tpl.split("<!--__BASEMAP__-->").join(baseMapMarkup);
+  tpl=tpl.split("/*__CONFIG__*/").join(configCode());
+  const blob=new Blob([tpl.trim()],{type:"text/html"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="shuinan-live.html";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+let drag=null;
+svg.addEventListener("pointerdown",e=>{
+  const d=e.target.dataset, m=toVB(e);   // m = 按下時的滑鼠座標
+  if(d.si!==undefined){
+    const s=STOPS[+d.si], t=d.t;
+    const ax = t==="dot"?s.x : t==="label"?s.lx : s.nx;   // 元素目前原點
+    const ay = t==="dot"?s.y : t==="label"?s.ly : s.ny;
+    sel={stop:+d.si}; drag={kind:t,si:+d.si,ox:m.x-ax,oy:m.y-ay};   // 記住抓取偏移
+  } else if(d.i!==undefined){
+    const p=routes[d.leg][+d.i];
+    sel={leg:d.leg,i:+d.i}; drag={kind:"route",leg:d.leg,i:+d.i,ox:m.x-p[0],oy:m.y-p[1]};
+  } else return;
+  dragging=true; svg.setPointerCapture(e.pointerId); render();
+});
+svg.addEventListener("pointermove",e=>{
+  if(!dragging||!drag) return;
+  if(!drag.moved){ drag.moved=true; pushUndo(); }   // 真正開始拖動才拍快照
+  const m=toVB(e); let nx=snapv(m.x-drag.ox), ny=snapv(m.y-drag.oy);   // 滑鼠 − 抓取偏移
+  if(drag.kind==="route"){
+    const arr=routes[drag.leg];
+    if(e.shiftKey){const prev=arr[drag.i-1]||arr[drag.i+1];
+      if(prev){ if(Math.abs(nx-prev[0])<Math.abs(ny-prev[1])) nx=prev[0]; else ny=prev[1]; }}
+    arr[drag.i]=[nx,ny];
+  }else if(drag.kind==="dot"){ STOPS[drag.si].x=nx; STOPS[drag.si].y=ny; }
+  else if(drag.kind==="label"){ const s=STOPS[drag.si]; s.nx+=nx-s.lx; s.ny+=ny-s.ly; s.lx=nx; s.ly=ny; }
+  else if(drag.kind==="num"){ STOPS[drag.si].nx=nx; STOPS[drag.si].ny=ny; }
+  render();
+});
+svg.addEventListener("pointerup",()=>{dragging=false;drag=null;});
+
+svg.addEventListener("click",e=>{
+  if(dragging) return;
+  if(mode==="stops"){ if(e.target.dataset.si===undefined){sel=null;render();} return; }
+  if(e.target.dataset.i!==undefined) return;
+  // 插入轉角:找作用中路段裡最近的一段
+  const {x,y}=toVB(e); const P=[snapv(x),snapv(y)];
+  const legs = mode==="all"?["go","back"]:[mode];
+  let best={leg:legs[0],bi:0,bd:Infinity};
+  legs.forEach(leg=>{const pts=routes[leg];
+    for(let i=0;i<pts.length-1;i++){const dd=distToSeg(P,pts[i],pts[i+1]);if(dd<best.bd)best={leg,bi:i,bd:dd};}});
+  pushUndo();
+  routes[best.leg].splice(best.bi+1,0,P); sel={leg:best.leg,i:best.bi+1}; render();
+});
+function distToSeg(p,a,b){
+  const dx=b[0]-a[0],dy=b[1]-a[1];
+  if(dx===0&&dy===0) return Math.hypot(p[0]-a[0],p[1]-a[1]);
+  let t=((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy);t=Math.max(0,Math.min(1,t));
+  return Math.hypot(p[0]-(a[0]+t*dx),p[1]-(a[1]+t*dy));
+}
+function delSelected(){
+  if(!sel||sel.leg==null) return;
+  const arr=routes[sel.leg]; if(arr.length<=2) return;
+  pushUndo(); arr.splice(sel.i,1); sel=null; render();
+}
+function addStop(){
+  pushUndo();
+  const key="stop"+Math.random().toString(36).slice(2,6);
+  STOPS.push({key,x:846,y:1000,lx:966,ly:930,nx:936,ny:930,name:"新站點",num:String(STOPS.length+1)});
+  sel={stop:STOPS.length-1}; render();
+}
+function delStopFn(){
+  if(!sel||sel.stop==null||STOPS.length<=1) return;
+  pushUndo(); STOPS.splice(sel.stop,1); sel=null; render();
+}
+document.getElementById("del").addEventListener("click",delSelected);
+document.getElementById("addStop").addEventListener("click",addStop);
+document.getElementById("delStop").addEventListener("click",delStopFn);
+window.addEventListener("keydown",e=>{
+  if((e.key!=="Delete"&&e.key!=="Backspace")||document.activeElement.tagName==="INPUT") return;
+  if(mode==="stops"){ if(sel&&sel.stop!=null){e.preventDefault();delStopFn();} }
+  else { if(sel&&sel.leg!=null){e.preventDefault();delSelected();} }
+});
+window.addEventListener("keydown",e=>{                 // Ctrl/Cmd+Z 還原
+  const tag=document.activeElement.tagName;
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"&&tag!=="INPUT"&&tag!=="TEXTAREA"){ e.preventDefault(); undo(); }
+});
+window.addEventListener("keydown",e=>{                 // Ctrl/Cmd+Z 還原、+Shift 重做
+  const tag=document.activeElement.tagName;
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"&&tag!=="INPUT"&&tag!=="TEXTAREA"){ e.preventDefault(); e.shiftKey?redo():undo(); }
+});
+document.getElementById("undoBtn").addEventListener("click",undo);
+document.getElementById("redoBtn").addEventListener("click",redo);
+document.getElementById("nameIn").addEventListener("focus",()=>armSnap("name"));
+document.getElementById("numIn").addEventListener("focus",()=>armSnap("num"));
+document.getElementById("radius").addEventListener("focus",()=>armSnap("R"));
+document.getElementById("nameIn").addEventListener("input",e=>{if(sel&&sel.stop!=null){commitSnap("name");STOPS[sel.stop].name=e.target.value;render();}});
+document.getElementById("numIn").addEventListener("input",e=>{if(sel&&sel.stop!=null){commitSnap("num");STOPS[sel.stop].num=e.target.value;render();}});
+
+document.getElementById("snap").addEventListener("change",e=>{snap=e.target.checked;});
+document.getElementById("radius").addEventListener("input",e=>{commitSnap("R");R=+e.target.value;document.getElementById("rval").textContent=R;render();});
+
+// ===== 動態分頁(隨模式改變) =====
+const tabsEl=document.getElementById("tabs");
+function renderTabs(){
+  tabsEl.innerHTML="";
+  TABCFG[routeMode].forEach(t=>{
+    const b=document.createElement("button");
+    b.className="tab "+t.cls+(mode===t.m?" on":"");
+    b.dataset.mode=t.m; b.innerHTML=`<i></i>${t.label}`;
+    b.addEventListener("click",()=>{ mode=t.m; sel=null; renderTabs(); syncColorCtl(); render(); });
+    tabsEl.append(b);
+  });
+  const st=document.getElementById("stopsTab"); if(st) st.classList.toggle("on", mode==="stops");
+}
+document.getElementById("stopsTab").addEventListener("click",()=>{ mode="stops"; sel=null; renderTabs(); syncColorCtl(); render(); });
+
+// ===== 顏色(單一色票,跟著當前分頁)=====
+const colorCtl=document.getElementById("colorCtl"),colorLabel=document.getElementById("colorLabel"),colorInput=document.getElementById("colorInput");
+function curColorKey(){ return mode==="go"?"go":mode==="back"?"back":mode==="all"?"single":null; }
+function syncColorCtl(){
+  const k=curColorKey();
+  colorCtl.hidden=!k;
+  if(k){ colorLabel.textContent=k==="go"?"去程":k==="back"?"回程":"全程"; colorInput.value=COL[k]; }
+}
+function applyColors(){
+  const root=document.documentElement.style;
+  if(routeMode==="single"){ root.setProperty("--go",COL.single); root.setProperty("--back",COL.single); }
+  else { root.setProperty("--go",COL.go); root.setProperty("--back",COL.back); }
+  render();
+}
+colorInput.addEventListener("focus",()=>armSnap("col"));
+colorInput.addEventListener("input",e=>{ const k=curColorKey(); if(k){ commitSnap("col"); COL[k]=e.target.value; applyColors();} });
+
+// ===== 去回程 / 不分模式切換 =====
+document.querySelectorAll("#rmSeg .segbtn").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#rmSeg .segbtn").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on"); routeMode=b.dataset.rm;
+  mode = routeMode==="single" ? "all" : "go";     // 切模式時重設分頁
+  sel=null; renderTabs(); syncColorCtl(); applyColors();
+}));
+
+document.getElementById("copy").addEventListener("click",async()=>{
+  const ta=document.getElementById("output");
+  try{await navigator.clipboard.writeText(ta.value);}catch{ta.select();document.execCommand("copy");}
+  const b=document.getElementById("copy");b.textContent="已複製";setTimeout(()=>b.textContent="複製",1200);
+});
+
+// ===== 更換底圖 =====
+// 目前底圖標記存這裡,未來產生器可一起輸出
+let baseMapMarkup=document.getElementById("basemap").innerHTML;
+let baseViewBox=svg.getAttribute("viewBox");
+function setBaseMap(innerSVG, viewBox){
+  svg.setAttribute("viewBox", viewBox);
+  document.getElementById("basemap").innerHTML = innerSVG;
+  baseMapMarkup=innerSVG; baseViewBox=viewBox;
+  const vb=viewBox.split(/\s+/).map(Number);
+  document.querySelector(".stage-wrap").style.aspectRatio = vb[2]+"/"+vb[3];   // 外層比例跟著新底圖
+  render();
+}
+document.getElementById("changeMap").addEventListener("click",()=>document.getElementById("mapFile").click());
+document.getElementById("genPage").addEventListener("click",generatePage);
+
+// ===== 匯出 / 匯入 設定 =====
+function exportConfig(){
+  const data={ v:1, routeMode, COL:{...COL}, routes:{go:routes.go,back:routes.back}, R, snap,
+    STOPS:STOPS.map(s=>({...s})), baseMapMarkup, baseViewBox,
+    out:{outView,outShape,outZoom,outFollowW,outFollowH,outFollowFill,outMmCorner,outBusFx,outBusStyle,outBusIconSvg,outBusArrowSvg,outBusScale,outBusBg,outBusFg,outBusStroke,outBusStrokeW,outBusNoCore,outBusNoRing,outLabelScale,outStopScale,outLineW,outLayout},
+    feed:{feedMode,feedListPath,feedFields:{...feedFields},feedSrc:{...feedSrc},feedSrcList:{...feedSrcList},feedSrcKey:{...feedSrcKey},feedEtaTypeBySrc:{...feedEtaTypeBySrc},feedCode,
+      feedSources:feedSources.map(s=>({id:s.id,name:s.name,url:s.url,primary:!!s.primary}))} };
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="route-config.json";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function setSeg(segId,key,val){ document.querySelectorAll("#"+segId+" .segbtn").forEach(b=>b.classList.toggle("on", b.dataset[key]===val)); }
+function applyLoadedState(){
+  document.getElementById("radius").value=R; document.getElementById("rval").textContent=R;
+  document.getElementById("snap").checked=snap;
+  setSeg("rmSeg","rm",routeMode); mode = routeMode==="single"?"all":"go"; sel=null;
+  setSeg("mmView","mmv",outView); setSeg("mmShape","mms",outShape);
+  document.getElementById("mmZoom").value=outZoom; document.getElementById("mmZoomVal").textContent=(+outZoom).toFixed(1)+"×";
+  document.getElementById("mmW").value=outFollowW; document.getElementById("mmH").value=outFollowH;
+  document.getElementById("mmFill").checked=outFollowFill;
+  document.getElementById("mmRadius").value=outMmCorner; document.getElementById("mmRadiusVal").textContent=outMmCorner;
+  document.getElementById("busFx").value=outBusFx; document.getElementById("busStyle").value=outBusStyle;
+  document.getElementById("busScale").value=outBusScale; document.getElementById("busScaleVal").textContent=(+outBusScale).toFixed(1)+"×";
+  document.getElementById("busBg").value=outBusBg; document.getElementById("busFg").value=outBusFg; document.getElementById("busStroke").value=outBusStroke;
+  document.getElementById("busStrokeW").value=outBusStrokeW; document.getElementById("busStrokeWVal").textContent=outBusStrokeW;
+  document.getElementById("busNoCore").checked=outBusNoCore; document.getElementById("busNoRing").checked=outBusNoRing;
+  document.getElementById("labelScale").value=outLabelScale; document.getElementById("labelScaleVal").textContent=(+outLabelScale).toFixed(1)+"×";
+  document.getElementById("stopScale").value=outStopScale; document.getElementById("stopScaleVal").textContent=(+outStopScale).toFixed(1)+"×";
+  document.getElementById("lineW").value=outLineW; document.getElementById("lineWVal").textContent=outLineW;
+  document.documentElement.style.setProperty("--line-w",outLineW);
+  setSeg("layoutSeg","lay",outLayout);
+  setSeg("feedMode","fm",feedMode); document.getElementById("feedCode").value=feedCode;
+  const vb=baseViewBox.split(/\s+/).map(Number); document.querySelector(".stage-wrap").style.aspectRatio=vb[2]+"/"+vb[3];
+  renderTabs(); syncColorCtl(); updateMmVisibility(); syncCircleSize(); updateBusIconUI(); renderSrcList(); refreshItemPaths(); renderFeedMap();
+  applyMmPreview(); applyColors(); updateOutput();
+}
+function importConfig(file){
+  file.text().then(t=>{
+    let d; try{ d=JSON.parse(t); }catch(e){ alert("設定檔解析失敗:"+e.message); return; }
+    if(d.routeMode) routeMode=d.routeMode;
+    if(d.COL){ if(d.COL.go)COL.go=d.COL.go; if(d.COL.back)COL.back=d.COL.back; if(d.COL.single)COL.single=d.COL.single; }
+    if(d.routes&&d.routes.go&&d.routes.back){ routes.go=d.routes.go.map(p=>[+p[0],+p[1]]); routes.back=d.routes.back.map(p=>[+p[0],+p[1]]); }
+    if(typeof d.R==="number") R=d.R;
+    if(typeof d.snap==="boolean") snap=d.snap;
+    if(Array.isArray(d.STOPS)){ STOPS.length=0; d.STOPS.forEach(s=>STOPS.push(s)); }
+    if(d.baseMapMarkup!=null){ baseMapMarkup=d.baseMapMarkup; document.getElementById("basemap").innerHTML=baseMapMarkup; }
+    if(d.baseViewBox){ baseViewBox=d.baseViewBox; svg.setAttribute("viewBox",baseViewBox); }
+    const o=d.out||{}; const ks=["outView","outShape","outZoom","outFollowW","outFollowH","outFollowFill","outMmCorner","outBusFx","outBusStyle","outBusIconSvg","outBusArrowSvg","outBusScale","outBusBg","outBusFg","outBusStroke","outBusStrokeW","outBusNoCore","outBusNoRing","outLabelScale","outStopScale","outLineW","outLayout"];
+    const set={outView:v=>outView=v,outShape:v=>outShape=v,outZoom:v=>outZoom=v,outFollowW:v=>outFollowW=v,outFollowH:v=>outFollowH=v,outFollowFill:v=>outFollowFill=v,outMmCorner:v=>outMmCorner=v,outBusFx:v=>outBusFx=v,outBusStyle:v=>outBusStyle=v,outBusIconSvg:v=>outBusIconSvg=v,outBusArrowSvg:v=>outBusArrowSvg=v,outBusScale:v=>outBusScale=v,outBusBg:v=>outBusBg=v,outBusFg:v=>outBusFg=v,outBusStroke:v=>outBusStroke=v,outBusStrokeW:v=>outBusStrokeW=v,outBusNoCore:v=>outBusNoCore=v,outBusNoRing:v=>outBusNoRing=v,outLabelScale:v=>outLabelScale=v,outStopScale:v=>outStopScale=v,outLineW:v=>outLineW=v,outLayout:v=>outLayout=v};
+    ks.forEach(k=>{ if(o[k]!=null) set[k](o[k]); });
+    const f=d.feed||{};
+    if(f.feedMode!=null)feedMode=f.feedMode; if(f.feedListPath!=null)feedListPath=f.feedListPath;
+    if(f.feedFields)feedFields=Object.assign({},feedFields,f.feedFields); if(f.feedSrc)feedSrc=Object.assign({},feedSrc,f.feedSrc); if(f.feedSrcList)feedSrcList=Object.assign({},feedSrcList,f.feedSrcList); if(f.feedSrcKey)feedSrcKey=Object.assign({},feedSrcKey,f.feedSrcKey); if(f.feedCode!=null)feedCode=f.feedCode;
+    if(f.feedEtaTypeBySrc) feedEtaTypeBySrc=Object.assign({},feedEtaTypeBySrc,f.feedEtaTypeBySrc);
+    else if(f.feedFields&&f.feedFields.etaType) feedEtaTypeBySrc[""]=f.feedFields.etaType;   // 相容舊版匯出檔(單一全域格式)
+    if(Array.isArray(f.feedSources)){ feedSources=f.feedSources.map(s=>({id:s.id,name:s.name,url:s.url,primary:!!s.primary,sample:null,rootPaths:[],rootArrays:[]})); feedSid=feedSources.length+1; }
+    applyLoadedState();
+  });
+}
+document.getElementById("exportCfg").addEventListener("click",exportConfig);
+document.getElementById("importCfg").addEventListener("click",()=>document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(f)importConfig(f); e.target.value=""; });
+document.getElementById("mapFile").addEventListener("change",e=>{
+  const file=e.target.files[0]; if(!file) return;
+  if(file.name.toLowerCase().endsWith(".svg")){
+    file.text().then(text=>{
+      const el=new DOMParser().parseFromString(text,"image/svg+xml").querySelector("svg");
+      if(!el){ alert("SVG 讀取失敗"); return; }
+      let vb=el.getAttribute("viewBox");
+      if(!vb){const w=parseFloat(el.getAttribute("width"))||1000,h=parseFloat(el.getAttribute("height"))||1000;vb=`0 0 ${w} ${h}`;}
+      setBaseMap(el.innerHTML, vb);
+    });
+  } else {                                   // 圖片:轉 dataURL 內嵌,用原始尺寸當 viewBox
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const dataURL=ev.target.result, img=new Image();
+      img.onload=()=>{ const w=img.naturalWidth,h=img.naturalHeight;
+        setBaseMap(`<image href="${dataURL}" x="0" y="0" width="${w}" height="${h}"/>`, `0 0 ${w} ${h}`); };
+      img.src=dataURL;
+    };
+    reader.readAsDataURL(file);
+  }
+  e.target.value="";                         // 允許再次選同一檔
+});
+
+// ===== 小地圖輸出設定 + 編輯器內預覽 =====
+function routeCentroid(){
+  let sx=0,sy=0,n=0;
+  [...routes.go,...routes.back].forEach(p=>{sx+=p[0];sy+=p[1];n++;});
+  return n? {x:sx/n,y:sy/n} : {x:0,y:0};
+}
+function applyMmShape(){
+  if(outView==="follow") stageEl.style.borderRadius = outShape==="circle" ? "50%" : outMmCorner+"px";
+}
+function mmViewBox(){                              // 依倍率+小地圖框比例設定相機視窗(不動框大小)
+  const vb=baseViewBox.split(/\s+/).map(Number);
+  const winW=vb[2]/outZoom, winH=winW*(outFollowH/outFollowW), c=routeCentroid();
+  let vx=c.x-winW/2, vy=c.y-winH/2;
+  vx=vb[2]>winW?Math.max(vb[0],Math.min(vb[0]+vb[2]-winW,vx)):vb[0]+(vb[2]-winW)/2;
+  vy=vb[3]>winH?Math.max(vb[1],Math.min(vb[1]+vb[3]-winH,vy)):vb[1]+(vb[3]-winH)/2;
+  svg.setAttribute("viewBox",`${vx} ${vy} ${winW} ${winH}`);
+}
+function applyMmPreview(){
+  const wrap=stageEl.parentElement;
+  if(outView==="follow"){
+    wrap.classList.add("mm");                       // 小地圖:外層可拖曳(resize:both)
+    stageEl.classList.add("follow"); applyMmShape();
+    if(outFollowFill){stageEl.style.width="100%";stageEl.style.aspectRatio=outFollowW+"/"+outFollowH;stageEl.style.height="";}
+    else {stageEl.style.width=outFollowW+"px";stageEl.style.height=outFollowH+"px";stageEl.style.aspectRatio="";}
+    mmViewBox();
+  } else {
+    wrap.classList.remove("mm");
+    wrap.style.width=""; wrap.style.height="";      // 清掉拖過的寬高,回到預設 width:min(100%,72vh)
+    stageEl.classList.remove("follow");
+    stageEl.style.width=""; stageEl.style.height=""; stageEl.style.aspectRatio=""; stageEl.style.borderRadius="";
+    svg.setAttribute("viewBox",baseViewBox);
+  }
+}
+const stageEl=document.querySelector(".stage");
+function syncCircleSize(){                      // 圓形:高=寬,並隱藏「高」輸入
+  const circ = outShape==="circle";
+  document.getElementById("mmHLbl").style.display = circ?"none":"";
+  if(circ){ outFollowH=outFollowW; document.getElementById("mmH").value=outFollowW; }
+}
+function updateMmVisibility(){                 // 整張圖時隱藏外框/圓角/倍率/尺寸,只有小地圖才顯示
+  const show = outView==="follow";
+  document.getElementById("mmShape").style.display = show?"":"none";
+  document.getElementById("mmRadiusWrap").style.display = (show&&outShape!=="circle")?"":"none";
+  document.getElementById("mmZoomWrap").style.display = show?"":"none";
+  document.getElementById("mmSizeWrap").style.display = show?"":"none";
+  document.getElementById("mmSizeFill").style.display = show?"":"none";
+}
+document.querySelectorAll("#mmView .segbtn").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#mmView .segbtn").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  outView=b.dataset.mmv; updateMmVisibility(); applyMmPreview(); updateOutput();
+}));
+document.querySelectorAll("#mmShape .segbtn").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#mmShape .segbtn").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  outShape=b.dataset.mms; syncCircleSize(); updateMmVisibility(); applyMmShape(); if(outView==="follow")applyMmPreview(); updateOutput();
+}));
+document.getElementById("mmRadius").addEventListener("input",e=>{
+  outMmCorner=+e.target.value; document.getElementById("mmRadiusVal").textContent=outMmCorner;
+  if(outView==="follow")applyMmShape(); updateOutput();
+});
+document.getElementById("mmZoom").addEventListener("input",e=>{
+  outZoom=+e.target.value; document.getElementById("mmZoomVal").textContent=outZoom.toFixed(1)+"×";
+  if(outView==="follow")applyMmPreview(); updateOutput();
+});
+document.getElementById("mmW").addEventListener("input",e=>{
+  outFollowW=Math.max(60,+e.target.value||320);
+  if(outShape==="circle"){ outFollowH=outFollowW; document.getElementById("mmH").value=outFollowW; }
+  if(outView==="follow")applyMmPreview(); updateOutput();
+});
+document.getElementById("mmH").addEventListener("input",e=>{
+  outFollowH=Math.max(60,+e.target.value||320);
+  if(outView==="follow")applyMmPreview(); updateOutput();
+});
+document.getElementById("mmFill").addEventListener("change",e=>{
+  outFollowFill=e.target.checked;
+  if(outView==="follow")applyMmPreview(); updateOutput();
+});
+
+// 公車特效 + 文字/站點/路線 大小
+document.getElementById("busFx").addEventListener("change",e=>{ outBusFx=e.target.value; updateOutput(); });
+function updateBusIconUI(){
+  const on = outBusStyle==="icon"||outBusStyle==="arrow";
+  const svg = outBusStyle==="arrow"?outBusArrowSvg:outBusIconSvg;
+  const btn=document.getElementById("busIconBtn"), prev=document.getElementById("busIconPrev");
+  btn.style.display = on?"":"none"; btn.textContent = outBusStyle==="arrow"?"上傳箭頭":"上傳圖示";
+  prev.style.display = (on&&svg)?"":"none";
+  if(on&&svg){ prev.innerHTML=svg; const sv=prev.querySelector("svg"); if(sv){sv.setAttribute("width","100%");sv.setAttribute("height","100%");} }
+}
+document.getElementById("busStyle").addEventListener("change",e=>{ outBusStyle=e.target.value; updateBusIconUI(); updateOutput(); });
+document.getElementById("busScale").addEventListener("input",e=>{ outBusScale=+e.target.value; document.getElementById("busScaleVal").textContent=outBusScale.toFixed(1)+"×"; updateOutput(); });
+document.getElementById("busBg").addEventListener("input",e=>{ outBusBg=e.target.value; updateOutput(); });
+document.getElementById("busFg").addEventListener("input",e=>{ outBusFg=e.target.value; updateOutput(); });
+document.getElementById("busStroke").addEventListener("input",e=>{ outBusStroke=e.target.value; updateOutput(); });
+document.getElementById("busStrokeW").addEventListener("input",e=>{ outBusStrokeW=+e.target.value; document.getElementById("busStrokeWVal").textContent=outBusStrokeW; updateOutput(); });
+document.getElementById("busNoCore").addEventListener("change",e=>{ outBusNoCore=e.target.checked; updateOutput(); });
+document.getElementById("busNoRing").addEventListener("change",e=>{ outBusNoRing=e.target.checked; updateOutput(); });
+document.querySelectorAll("#layoutSeg .segbtn").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#layoutSeg .segbtn").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+  outLayout=b.dataset.lay; updateOutput();
+}));
+
+document.getElementById("busIconBtn").addEventListener("click",()=>document.getElementById("busIconFile").click());
+document.getElementById("busIconFile").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  f.text().then(t=>{
+    t=t.replace(/<script[\s\S]*?<\/script>/gi,"");   // 安全:移除 script 標籤
+    if(!/<svg[\s\S]*<\/svg>/i.test(t)){ alert("看起來不是有效的 SVG"); return; }
+    if(outBusStyle==="arrow") outBusArrowSvg=t; else outBusIconSvg=t;
+    updateBusIconUI(); updateOutput();
+  });
+  e.target.value="";
+});
+document.getElementById("labelScale").addEventListener("input",e=>{
+  outLabelScale=+e.target.value; document.getElementById("labelScaleVal").textContent=outLabelScale.toFixed(1)+"×"; render();
+});
+document.getElementById("stopScale").addEventListener("input",e=>{
+  outStopScale=+e.target.value; document.getElementById("stopScaleVal").textContent=outStopScale.toFixed(1)+"×"; render();
+});
+document.getElementById("lineW").addEventListener("input",e=>{
+  outLineW=+e.target.value; document.getElementById("lineWVal").textContent=outLineW;
+  document.documentElement.style.setProperty("--line-w",outLineW); updateOutput();
+});
+
+updateMmVisibility();
+syncCircleSize();
+updateBusIconUI();
+document.documentElement.style.setProperty("--line-w",outLineW);
+
+// ===== 資料來源(方案A 對應 + 方案D 自訂函式)=====
+let feedMode="distance";
+let feedListPath="";
+let feedFields={sort:"",arrived:"",distNext:"",distStop:"",percent:"",eta:"",stopLat:"",stopLon:"",success:"",plate:"",busLat:"",busLon:"",now:"",stopId:""};
+let feedEtaTypeBySrc={"":"seconds"};   // key=eta 目前使用的來源id(主來源為""),value="seconds"|"epoch" — 各來源各自記住自己的時間格式
+function currentEtaType(){ return feedEtaTypeBySrc[feedSrc.eta||""]||"seconds"; }
+let feedSrc={success:"",plate:"",busLat:"",busLon:"",now:"",arrived:"",distNext:"",distStop:"",percent:"",eta:""};   // 各欄位的來源 id(空=主來源)
+let feedSrcList={arrived:"",distNext:"",distStop:"",percent:"",eta:""};   // 跨來源欄位:該來源裡「每站陣列」的路徑
+let feedSrcKey={arrived:"",distNext:"",distStop:"",percent:"",eta:""};    // 跨來源欄位:該陣列裡「站點識別(stopId)」的路徑
+let feedSources=[];   // {id,name,url,primary,sample,rootPaths,rootArrays}
+let feedSid=1;
+let feedEditId=null;   // 非 null 時 Modal 為「編輯」模式,對應此來源 id
+let feedCode="// primary = 主來源回應;sources = {來源id:回應}\nreturn { seg: 0, p: 0 };";
+let feedItemPaths=[];
+document.getElementById("feedCode").value=feedCode;
+// 預覽用的公車標記(測試時標在地圖上)
+const pvBus=document.createElementNS(SVGNS,"g"); pvBus.setAttribute("id","previewBus"); pvBus.style.display="none";
+(function(){ const halo=document.createElementNS(SVGNS,"circle"); halo.setAttribute("r",48);halo.setAttribute("fill","none");halo.setAttribute("stroke","#f9a825");halo.setAttribute("stroke-width",4);halo.setAttribute("opacity","0.55");
+  const core=document.createElementNS(SVGNS,"circle"); core.setAttribute("r",30);core.setAttribute("fill","#f9a825");core.setAttribute("stroke","#fff");core.setAttribute("stroke-width",5);
+  pvBus.append(halo,core); svg.appendChild(pvBus); })();
+function feedShowOnMap(r){
+  let pt=null;
+  if(r.gps){ pt=edPt(r.dist); }
+  else { const od=edOrderDist(), seg=r.seg||0, a=od[seg], c=(od[seg+1]!=null?od[seg+1]:a), pp=(r.p!=null?r.p:0); pt=edPt(a+(c-a)*pp); }
+  if(pt){ pvBus.setAttribute("transform","translate("+pt.x+","+pt.y+")"); pvBus.style.display=""; return true; }
+  return false;
+}
+
+function fGetPath(o,p){ if(!p) return undefined; return String(p).split(".").reduce((a,k)=>(a==null?undefined:a[k]),o); }
+function fFlatten(o,pre,out){
+  if(o==null||typeof o!=="object") return;
+  for(const k in o){ const path=pre?pre+"."+k:k, v=o[k];
+    if(Array.isArray(v)) out.push({path,type:"array",sample:"陣列["+v.length+"]"});
+    else if(v&&typeof v==="object") fFlatten(v,path,out);
+    else out.push({path,type:typeof v,sample:JSON.stringify(v).slice(0,26)});
+  }
+}
+function fFindArrays(o,pre,out,depth){
+  if(o==null||typeof o!=="object"||depth>2) return;
+  for(const k in o){ const path=pre?pre+"."+k:k, v=o[k];
+    if(Array.isArray(v)){ out.push({path,type:"array",sample:"陣列["+v.length+"]"});
+      if(depth<2 && v.length && v[0]&&typeof v[0]==="object") fFindArrays(v[0], path+".0", out, depth+1);
+    } else if(v&&typeof v==="object"){ fFindArrays(v,path,out,depth+1); }
+  }
+}
+function arraysOf(sample){ const out=[]; if(sample) fFindArrays(sample,"",out,0); return out; }
+function itemPathsOf(sample,arrPath){ const out=[]; const arr=fGetPath(sample,arrPath); if(Array.isArray(arr)&&arr.length) fFlatten(arr[0],"",out); return out; }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function feedPrimary(){ return feedSources.find(s=>s.primary)||null; }
+function srcById(id){ return feedSources.find(s=>s.id===id)||null; }
+function srcScalars(id){
+  const s=srcById(id)||feedPrimary(); if(!s||!s.rootPaths) return [];
+  const top=s.rootPaths.filter(x=>x.type!=="array");
+  const nested=[];
+  (s.rootArrays||[]).forEach(a=>{
+    itemPathsOf(s.sample,a.path).forEach(it=>{ if(it.type!=="array") nested.push({path:a.path+".0."+it.path,type:it.type,sample:it.sample}); });
+  });
+  return top.concat(nested);
+}
+function primaryArrays(){ const p=feedPrimary(); return (p&&p.rootArrays)?p.rootArrays:[]; }
+function refreshItemPaths(){ const p=feedPrimary(); feedItemPaths=[]; if(p&&p.sample){ const list=fGetPath(p.sample,feedListPath); if(Array.isArray(list)&&list.length) fFlatten(list[0],"",feedItemPaths); } }
+function renderSrcList(){
+  const box=document.getElementById("feedSrcList");
+  if(!feedSources.length){ box.innerHTML='<p class="hint" style="margin:0">尚未新增來源。點右上「＋ 新增來源」加入 API。</p>'; return; }
+  box.innerHTML=feedSources.map(s=>'<div class="srcrow">'
+    +'<span class="srcbadge'+(s.primary?' primary':'')+'">'+(s.primary?'主':'其他')+'</span>'
+    +'<div class="srcinfo"><b>'+esc(s.name)+'</b><span>'+esc(s.url)+'</span></div>'
+    +'<button class="btn" data-act="an" data-id="'+s.id+'">抓取分析</button>'
+    +'<span class="srcstatus" id="srcStatus_'+s.id+'">'+(s.sample?'✓ 已分析':'')+'</span>'
+    +'<button class="btn" data-act="ed" data-id="'+s.id+'">編輯</button>'
+    +'<button class="btn" data-act="del" data-id="'+s.id+'">✕</button></div>').join("");
+  box.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ const id=b.dataset.id, a=b.dataset.act;
+    if(a==="an")analyzeSource(id); else if(a==="ed")openSrcModal(id); else removeSource(id); }));
+}
+async function analyzeSource(id){
+  const s=srcById(id); if(!s) return; const st=document.getElementById("srcStatus_"+id);
+  st.textContent="抓取中…"; st.style.color="var(--ink-dim)";
+  try{ const r=await fetch(s.url); const j=await r.json(); s.sample=j;
+    const out=[]; fFlatten(j,"",out); s.rootPaths=out; s.rootArrays=arraysOf(j);
+    st.textContent="✓ "+out.length+"欄 / "+s.rootArrays.length+"陣列"; st.style.color="var(--accent)";
+    if(s.primary) refreshItemPaths(); renderFeedMap(); updateOutput();
+  }catch(e){ st.textContent="✗ CORS/網址失敗"; st.style.color="#ff8080"; }
+}
+function removeSource(id){ feedSources=feedSources.filter(x=>x.id!==id);
+  for(const k in feedSrc) if(feedSrc[k]===id) feedSrc[k]="";
+  renderSrcList(); refreshItemPaths(); renderFeedMap(); updateOutput();
+}
+function openSrcModal(editId){
+  feedEditId=(typeof editId==="string")?editId:null;
+  const title=document.getElementById("srcModalTitle"), addBtn=document.getElementById("srcAdd");
+  const P=document.querySelector('input[name="srcType"][value="primary"]'), O=document.querySelector('input[name="srcType"][value="other"]');
+  if(feedEditId){
+    const s=srcById(feedEditId);
+    document.getElementById("srcName").value=s.name; document.getElementById("srcUrl").value=s.url;
+    P.checked=s.primary; O.checked=!s.primary;
+    if(title)title.textContent="編輯資料來源"; if(addBtn)addBtn.textContent="儲存";
+  }else{
+    document.getElementById("srcName").value=""; document.getElementById("srcUrl").value="";
+    const hasP=feedSources.some(s=>s.primary); P.checked=!hasP; O.checked=hasP;
+    if(title)title.textContent="新增資料來源"; if(addBtn)addBtn.textContent="加入";
+  }
+  document.getElementById("srcModal").style.display="flex";
+}
+function closeSrcModal(){ document.getElementById("srcModal").style.display="none"; feedEditId=null; }
+function addSourceFromModal(){
+  const name=document.getElementById("srcName").value.trim(), url=document.getElementById("srcUrl").value.trim();
+  const type=(document.querySelector('input[name="srcType"]:checked')||{}).value;
+  if(!name||!url){ alert("請填寫名稱與網址"); return; }
+  if(type==="primary" && feedSources.some(s=>s.primary && s.id!==feedEditId)){ alert("已經有主要來源了。請先把原本的主要來源改成「其他來源」,或改選「其他來源」。"); return; }
+  if(feedEditId){
+    const s=srcById(feedEditId); if(!s){ closeSrcModal(); return; }
+    const urlChanged=(s.url!==url);
+    s.name=name; s.url=url; s.primary=(type==="primary");
+    if(urlChanged){ s.sample=null; s.rootPaths=[]; s.rootArrays=[]; }
+    const eid=feedEditId; closeSrcModal(); renderSrcList(); refreshItemPaths(); renderFeedMap(); updateOutput();
+    if(urlChanged) analyzeSource(eid);   // 網址有改才重抓
+    return;
+  }
+  const first=feedSources.length===0;
+  const nid="s"+(feedSid++);
+  feedSources.push({id:nid,name,url,primary:(type==="primary"||first),sample:null,rootPaths:[],rootArrays:[]});
+  closeSrcModal(); renderSrcList(); renderFeedMap(); updateOutput();
+  analyzeSource(nid);   // 加入後自動抓取分析(失敗會顯示在該列,可再按「抓取分析」重試)
+}
+function feedOpt(list,val,allowEmpty){
+  let h=allowEmpty?'<option value="">(無)</option>':'';
+  list.forEach(o=>{ h+='<option value="'+o.path+'"'+(o.path===val?' selected':'')+'>'+o.path+'  ·  '+o.sample+'</option>'; });
+  return h;
+}
+let feedPreviewTabId=null;   // 目前選中的來源預覽分頁
+function jsonPreview(sample){
+  try{ let s=JSON.stringify(sample,null,2); if(s.length>4000) s=s.slice(0,4000)+"\n…(已截斷)"; return esc(s); }
+  catch(e){ return "(無法顯示)"; }
+}
+function renderFeedSrcPreview(){
+  const tabsBox=document.getElementById("feedSrcTabs"), box=document.getElementById("feedSrcPreview");
+  if(!box) return;
+  if(!feedSources.length){ tabsBox.innerHTML=""; box.innerHTML='<p class="hint" style="margin:0">尚未新增來源。新增後,抓取到的範例會顯示在這裡供對照路徑。</p>'; return; }
+  if(!feedSources.some(s=>s.id===feedPreviewTabId)) feedPreviewTabId=(feedPrimary()||feedSources[0]).id;
+  tabsBox.innerHTML=feedSources.map(s=>'<button type="button" class="srcprev-tab'+(s.primary?' primary':'')+(s.id===feedPreviewTabId?' on':'')+'" data-id="'+s.id+'">'+(s.primary?'★ ':'')+esc(s.name)+'</button>').join("");
+  tabsBox.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ feedPreviewTabId=b.dataset.id; renderFeedSrcPreview(); }));
+  const cur=srcById(feedPreviewTabId);
+  box.innerHTML = cur&&cur.sample ? '<pre>'+jsonPreview(cur.sample)+'</pre>' : '<p class="hint" style="margin:0">尚未抓取——請到上方來源列表按「抓取分析」</p>';
+}
+function renderFeedMap(){
+  const wrap=document.getElementById("feedMapWrap"), codeWrap=document.getElementById("feedCodeWrap");
+  if(feedMode==="custom"){ wrap.style.display="none"; codeWrap.style.display=""; renderFeedSrcPreview(); return; }
+  wrap.style.display="flex"; codeWrap.style.display="none";
+  const p=feedPrimary(), hasP=!!p;
+  if(hasP && !feedListPath && primaryArrays().length){ feedListPath=primaryArrays()[0].path; refreshItemPaths(); }
+  const rowHtml=(label,id,list,val,empty)=>'<label class="toggle" style="justify-content:space-between;gap:10px"><span>'+label+'</span><select class="sel" id="'+id+'" style="min-width:190px">'+feedOpt(list,val,empty)+'</select></label>';
+  const srcRow=(label,key,empty)=>{
+    const others=feedSources.filter(s=>!s.primary);
+    const srcSel='<select class="sel" id="src_'+key+'" style="min-width:96px"><option value="">主來源</option>'+others.map(s=>'<option value="'+s.id+'"'+(feedSrc[key]===s.id?' selected':'')+'>'+esc(s.name)+'</option>').join("")+'</select>';
+    const scalars=srcScalars(feedSrc[key]||(p&&p.id));
+    const pathSel='<select class="sel" id="fld_'+key+'" style="min-width:150px">'+feedOpt(scalars,feedFields[key],empty)+'</select>';
+    return '<label class="toggle" style="justify-content:space-between;gap:8px"><span>'+label+'</span><span style="display:flex;gap:6px">'+srcSel+pathSel+'</span></label>';
+  };
+  const stationSrcRow=(label,key)=>{                 // 每站欄位:可選主來源或其他來源(其他來源需指定陣列+比對鍵)
+    const others=feedSources.filter(s=>!s.primary);
+    const curSrc=feedSrc[key]||"";
+    const srcSel='<select class="sel" id="ssrc_'+key+'" style="min-width:90px"><option value="">主來源</option>'+others.map(s=>'<option value="'+s.id+'"'+(curSrc===s.id?' selected':'')+'>'+esc(s.name)+'</option>').join("")+'</select>';
+    let extra="", valueList;
+    if(curSrc){
+      const s=srcById(curSrc);
+      const arrays=s?arraysOf(s.sample):[];
+      const arrSel='<select class="sel" id="slist_'+key+'" style="min-width:150px">'+feedOpt(arrays,feedSrcList[key],false)+'</select>';
+      const items=(s&&feedSrcList[key])?itemPathsOf(s.sample,feedSrcList[key]):[];
+      const keySel='<select class="sel" id="skey_'+key+'" style="min-width:120px">'+feedOpt(items,feedSrcKey[key],false)+'</select>';
+      valueList=items; extra=arrSel+keySel;
+    } else { valueList=feedItemPaths; }
+    const valSel='<select class="sel" id="fld_'+key+'" style="min-width:150px">'+feedOpt(valueList,feedFields[key],true)+'</select>';
+    return '<label class="toggle" style="justify-content:space-between;gap:6px;flex-wrap:wrap"><span>'+label+'</span><span style="display:flex;gap:6px;flex-wrap:wrap">'+srcSel+extra+valSel+'</span></label>';
+  };
+  const crossKeys={arrived:1,distNext:1,distStop:1,percent:1,eta:1};
+  const roles={ station:[["arrived","是否已過站(每站)"]],
+    distance:[["arrived","是否已過站(每站)"],["distNext","到下一站距離(每站)"],["distStop","累積里程(每站)"]],
+    percent:[["arrived","目前站/已過站(每站)"],["percent","段內百分比(每站)"]],
+    eta:[["arrived","是否已過站(每站)"],["eta","下一站到站秒數/時間(每站)"]],
+    gps:[["stopLat","站點緯度(每站,校正用)"],["stopLon","站點經度(每站,校正用)"]] }[feedMode]||[];
+  let h= hasP ? '' : '<p class="hint" style="margin:0 0 2px">下面是「'+({station:"純站別",distance:"距離",percent:"百分比",eta:"到站秒數",gps:"座標(GPS)"}[feedMode]||feedMode)+'」模式會用到的資料欄位。新增並抓取「主要來源」後,下拉就會列出可對應的欄位。</p>';
+  h+=rowHtml("站點清單(主來源陣列)","fld_list",primaryArrays(),feedListPath,false)
+      + rowHtml("站序(每站,可選)","fld_sort",feedItemPaths,feedFields.sort,true);
+  const anyCross=roles.some(([k])=>crossKeys[k]) && feedSources.filter(s=>!s.primary).length>0;
+  if(anyCross){ h+=rowHtml("站點識別欄位 stopId(跨來源比對用,可選)","fld_stopId",feedItemPaths,feedFields.stopId,true); }
+  roles.forEach(([k,label])=> h+= crossKeys[k] ? stationSrcRow(label,k) : rowHtml(label,"fld_"+k,feedItemPaths,feedFields[k],k!=="stopLat"&&k!=="stopLon"));
+  if(feedMode==="gps"){ h+=srcRow("車輛經度 lon","busLon",false)+srcRow("車輛緯度 lat","busLat",false); }
+  if(feedMode==="eta"){
+    const et=currentEtaType();
+    const others=feedSources.filter(s=>!s.primary);
+    const etSrcSel='<select class="sel" id="etsrc_eta" style="min-width:96px"><option value="">主來源</option>'+others.map(s=>'<option value="'+s.id+'"'+(feedSrc.eta===s.id?' selected':'')+'>'+esc(s.name)+'</option>').join("")+'</select>';
+    h+='<label class="toggle" style="justify-content:space-between;gap:6px;flex-wrap:wrap"><span>時間格式(依 eta 來源)</span><span style="display:flex;gap:6px">'+etSrcSel+'<select class="sel" id="fld_etaType" style="min-width:150px"><option value="seconds"'+(et==="seconds"?" selected":"")+'>剩餘秒數</option><option value="epoch"'+(et==="epoch"?" selected":"")+'>到站時間戳(epoch)</option></select></span></label>';
+    if(et==="epoch") h+=srcRow("現在時間 epoch","now",true);
+  }
+  h+=srcRow("車牌號碼","plate",true);
+  h+=srcRow("成功旗標","success",true);
+  wrap.innerHTML=h;
+  if(hasP){ wrap.querySelectorAll("select").forEach(s=>s.addEventListener("change",onFeedChange)); }
+  else { wrap.querySelectorAll("select").forEach(s=>{ if(!s.options.length){ const o=document.createElement("option"); o.textContent="(待載入來源)"; s.appendChild(o); } s.disabled=true; s.style.opacity=".5"; }); }
+}
+function onFeedChange(){
+  const v=id=>{const el=document.getElementById(id);return el?el.value:"";};
+  const prevList=feedListPath, prevEtaSrc=feedSrc.eta;
+  feedListPath=v("fld_list");
+  feedFields.sort=v("fld_sort"); feedFields.stopId=v("fld_stopId");
+  feedFields.arrived=v("fld_arrived");
+  feedFields.distNext=v("fld_distNext"); feedFields.distStop=v("fld_distStop"); feedFields.percent=v("fld_percent");
+  feedFields.eta=v("fld_eta"); feedFields.stopLat=v("fld_stopLat"); feedFields.stopLon=v("fld_stopLon");
+  feedFields.plate=v("fld_plate"); feedFields.success=v("fld_success"); feedFields.busLat=v("fld_busLat"); feedFields.busLon=v("fld_busLon"); feedFields.now=v("fld_now");
+  ["plate","success","busLat","busLon","now"].forEach(k=>{ const el=document.getElementById("src_"+k); if(el)feedSrc[k]=el.value; });
+  ["arrived","distNext","distStop","percent","eta"].forEach(k=>{
+    const sEl=document.getElementById("ssrc_"+k); if(sEl)feedSrc[k]=sEl.value;
+    const lEl=document.getElementById("slist_"+k); if(lEl)feedSrcList[k]=lEl.value;
+    const kEl=document.getElementById("skey_"+k); if(kEl)feedSrcKey[k]=kEl.value;
+  });
+  const etSrcEl=document.getElementById("etsrc_eta");   // 「時間格式」自己的來源下拉,跟 eta 欄位的來源是同一個設定,取「這次事件裡真的變動的那個」
+  if(etSrcEl && etSrcEl.value!==prevEtaSrc) feedSrc.eta=etSrcEl.value;
+  const etEl=document.getElementById("fld_etaType"); if(etEl) feedEtaTypeBySrc[feedSrc.eta||""]=etEl.value;   // 存到「目前 eta 來源」自己的格式設定
+  if(feedListPath!==prevList) refreshItemPaths();
+  renderFeedMap();   // 來源/清單/比對鍵任一變動都可能改變下面欄位的可選清單,統一重繪
+  updateOutput();
+}
+// 幾何工具(GPS 預覽用)
+function edSolve3(M,b){ const A=M.map((r,i)=>[r[0],r[1],r[2],b[i]]);
+  for(let i=0;i<3;i++){ let piv=i; for(let r=i+1;r<3;r++) if(Math.abs(A[r][i])>Math.abs(A[piv][i])) piv=r; const t=A[i];A[i]=A[piv];A[piv]=t;
+    const d=A[i][i]||1e-9; for(let c=i;c<4;c++) A[i][c]/=d; for(let r=0;r<3;r++) if(r!==i){ const fc=A[r][i]; for(let c=i;c<4;c++) A[r][c]-=fc*A[i][c]; } }
+  return [A[0][3],A[1][3],A[2][3]]; }
+function edAffine(src,dst){ const A=[[0,0,0],[0,0,0],[0,0,0]],bx=[0,0,0],by=[0,0,0];
+  for(let i=0;i<src.length;i++){ const r=[src[i][0],src[i][1],1];
+    for(let a=0;a<3;a++){ for(let b=0;b<3;b++) A[a][b]+=r[a]*r[b]; bx[a]+=r[a]*dst[i][0]; by[a]+=r[a]*dst[i][1]; } }
+  const cx=edSolve3(A,bx),cy=edSolve3(A,by); return {ax:cx[0],bx:cx[1],cx:cx[2],ay:cy[0],by:cy[1],cy:cy[2]}; }
+function edApply(t,lon,lat){ return {x:t.ax*lon+t.bx*lat+t.cx, y:t.ay*lon+t.by*lat+t.cy}; }
+function edNearest(mx,my){ const gl=goPath.getTotalLength(),bl=backPath.getTotalLength(),T=gl+bl; let best=0,bd=Infinity;
+  for(let d=0;d<=T;d+=8){ const q=d<=gl?goPath.getPointAtLength(d):backPath.getPointAtLength(Math.min(d-gl,bl)); const dd=(q.x-mx)*(q.x-mx)+(q.y-my)*(q.y-my); if(dd<bd){bd=dd;best=d;} } return best; }
+function edPt(d){ const gl=goPath.getTotalLength(),bl=backPath.getTotalLength(); return d<=gl?goPath.getPointAtLength(d):backPath.getPointAtLength(Math.min(d-gl,bl)); }
+function edOrderDist(){ const gl=goPath.getTotalLength(),bl=backPath.getTotalLength(),T=gl+bl;
+  const order=[...STOPS,STOPS[0]], res=[]; let prev=0;
+  order.forEach((s,idx)=>{ if(idx===0){res.push(0);prev=0;return;} if(idx===order.length-1){res.push(T);return;}
+    let best=prev,bd=Infinity; for(let d=prev;d<=T;d+=6){ const q=edPt(d); const dd=(q.x-s.x)*(q.x-s.x)+(q.y-s.y)*(q.y-s.y); if(dd<bd){bd=dd;best=d;} } res.push(best); prev=best; });
+  return res; }
+function stationFieldEditor(key,item,sidVal,samples,primaryId){
+  const srcId=feedSrc[key];
+  if(!srcId||srcId===primaryId) return fGetPath(item,feedFields[key]);
+  const s=samples[srcId]; if(!s) return undefined;
+  const arr=fGetPath(s,feedSrcList[key]); if(!Array.isArray(arr)) return undefined;
+  if(sidVal==null) return undefined;
+  const m=arr.find(x=>String(fGetPath(x,feedSrcKey[key]))===String(sidVal));
+  return m?fGetPath(m,feedFields[key]):undefined;
+}
+function feedComputeEditor(){
+  const p=feedPrimary(); if(!p) return {error:"請先新增主要來源"}; if(!p.sample) return {error:"請先對主要來源「抓取分析」"};
+  const samples={}; feedSources.forEach(s=>{ if(s.sample) samples[s.id]=s.sample; });
+  const res=p.sample, f=feedFields, N=STOPS.length;
+  const sv=k=>{ const sid=feedSrc[k]||p.id; const s=samples[sid]; return s?fGetPath(s,f[k]):undefined; };
+  if(feedMode==="custom"){ try{ const fn=new Function("primary","sources",document.getElementById("feedCode").value); const r=fn(res,samples); return (r&&r.seg!=null)?{seg:r.seg,p:(r.p||0)}:null; }catch(e){ return {error:e.message}; } }
+  const list=fGetPath(res,feedListPath); if(!Array.isArray(list)||!list.length) return {error:"主來源找不到站點清單陣列"};
+  const rawStops=f.sort?[...list].sort((a,b)=>fGetPath(a,f.sort)-fGetPath(b,f.sort)):list.slice();
+  const usesCross=(k)=>feedSrc[k]&&feedSrc[k]!==p.id;
+  if((usesCross("arrived")||usesCross("distNext")||usesCross("distStop")||usesCross("percent")||usesCross("eta")) && !f.stopId)
+    return {error:"有每站欄位使用「其他來源」,請先設定「站點識別欄位 stopId」"};
+  const stops=rawStops.map(it=>{ const sidVal=f.stopId?fGetPath(it,f.stopId):undefined;
+    return { arrived:stationFieldEditor("arrived",it,sidVal,samples,p.id),
+      distNext:stationFieldEditor("distNext",it,sidVal,samples,p.id),
+      distStop:stationFieldEditor("distStop",it,sidVal,samples,p.id),
+      percent:stationFieldEditor("percent",it,sidVal,samples,p.id),
+      eta:stationFieldEditor("eta",it,sidVal,samples,p.id),
+      stopLat:fGetPath(it,f.stopLat), stopLon:fGetPath(it,f.stopLon) }; });
+  if(feedMode==="gps"){
+    const csrc=[],cdst=[],n=Math.min(stops.length,N);
+    for(let i=0;i<n;i++){ const lo=stops[i].stopLon,la=stops[i].stopLat;
+      if(lo!=null&&la!=null){ csrc.push([+lo,+la]); cdst.push([STOPS[i].x,STOPS[i].y]); } }
+    if(csrc.length<3) return {error:"校正控制點不足(需 ≥3 站有經緯度)"};
+    const t=edAffine(csrc,cdst), blon=sv("busLon"), blat=sv("busLat");
+    if(blon==null||blat==null) return {error:"找不到車輛經緯度(檢查來源/欄位)"};
+    const pt=edApply(t,+blon,+blat), d=edNearest(pt.x,pt.y);
+    let ni=0,nd=Infinity; STOPS.forEach((s,i)=>{const dd=(s.x-pt.x)**2+(s.y-pt.y)**2; if(dd<nd){nd=dd;ni=i;}});
+    return {gps:true, mapX:Math.round(pt.x), mapY:Math.round(pt.y), near:ni, dist:d};
+  }
+  let seg=0; if(f.arrived){ for(let i=0;i<Math.min(stops.length,N);i++) if(stops[i].arrived) seg=i; }
+  if(feedMode==="eta"){
+    const nxt=stops[seg+1]||stops[stops.length-1]; let eta=+nxt.eta;
+    if(currentEtaType()==="epoch"){ const now=f.now?+sv("now"):(Date.now()/1000); eta=eta-now; }
+    return {seg, eta:Math.max(0,eta||0)};
+  }
+  let p2=0;
+  if(feedMode==="distance"){ const cur=stops[seg],nxt=stops[seg+1]||stops[stops.length-1];
+    if(cur.distStop==null||nxt.distStop==null||nxt.distNext==null) return {error:"跨來源比對不到這一站的距離資料(檢查 stopId 是否一致)"};
+    const segLen=Math.max(1,nxt.distStop-cur.distStop); p2=1-(nxt.distNext/segLen); }
+  else if(feedMode==="percent"){ let pv=stops[seg].percent; if(pv>1)pv/=100; p2=pv||0; }
+  return {seg,p:Math.max(0,Math.min(1,p2))};
+}
+function feedTest(){
+  const out=document.getElementById("feedResult");
+  const r=feedComputeEditor();
+  if(!r){ out.textContent="✗ 算不出結果(檢查主來源與欄位對應)"; out.style.color="#ff8080"; return; }
+  if(r.error){ out.textContent="✗ "+r.error; out.style.color="#ff8080"; return; }
+  const onMap=feedShowOnMap(r) ? ' <span style="color:var(--ink-dim)">· 已標在地圖(切「地圖編輯」看)</span>' : '';
+  let plate=null;
+  if(feedMode!=="custom"&&feedFields.plate){ const p=feedPrimary(), sid=feedSrc.plate||(p&&p.id), s=feedSources.find(x=>x.id===sid); plate=(s&&s.sample)?fGetPath(s.sample,feedFields.plate):null; }
+  const pfx=(plate!=null?'車牌 <b style="color:var(--accent)">'+plate+'</b> · ':'');
+  if(r.gps){ const nm=STOPS[r.near]?STOPS[r.near].name:"?";
+    out.innerHTML='✓ '+pfx+'GPS→地圖('+r.mapX+', '+r.mapY+') 貼齊路線 → 最近 <b style="color:var(--accent)">'+nm+'</b>'+onMap; out.style.color="var(--ink)"; return; }
+  if(r.eta!=null){ const nx=STOPS[(r.seg+1)%STOPS.length];
+    out.innerHTML='✓ '+pfx+'seg='+r.seg+' · 往 <b style="color:var(--accent)">'+(nx?nx.name:"?")+'</b> · 約 '+Math.ceil(r.eta)+' 秒'+onMap; out.style.color="var(--ink)"; return; }
+  const name=STOPS[r.seg]?STOPS[r.seg].name:"(超出站數)";
+  const nextName=STOPS[(r.seg+1)%STOPS.length]?STOPS[(r.seg+1)%STOPS.length].name:"";
+  out.innerHTML='✓ '+pfx+'seg='+r.seg+' · p='+r.p.toFixed(3)+' → 在 <b style="color:var(--accent)">'+name+'</b>'+(r.p>0.02?' 往 '+nextName+' 途中':' (段起點)')+onMap;
+  out.style.color="var(--ink)";
+}
+document.getElementById("addSrc").addEventListener("click",openSrcModal);
+document.getElementById("srcCancel").addEventListener("click",closeSrcModal);
+document.getElementById("srcAdd").addEventListener("click",addSourceFromModal);
+document.getElementById("srcModal").addEventListener("click",e=>{ if(e.target.id==="srcModal") closeSrcModal(); });
+document.getElementById("feedTest").addEventListener("click",feedTest);
+document.getElementById("feedCode").addEventListener("input",e=>{ feedCode=e.target.value; updateOutput(); });
+document.querySelectorAll("#feedMode .segbtn").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#feedMode .segbtn").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+  feedMode=b.dataset.fm; renderFeedMap(); updateOutput();
+}));
+document.querySelectorAll(".mtab").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".mtab").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+  const p=b.dataset.panel;
+  document.getElementById("panelMap").style.display = p==="map"?"":"none";
+  document.getElementById("panelData").style.display = p==="data"?"":"none";
+}));
+function feedConfig(){
+  const feeds=feedSources.map(s=>({id:s.id,url:s.url,primary:!!s.primary}));
+  const primary=(feedPrimary()||{}).id||"";
+  if(feedMode==="custom") return {feeds, feed:{mode:"custom",primary,transform:document.getElementById("feedCode").value,src:{...feedSrc}}};
+  return {feeds, feed:{mode:feedMode,primary,listPath:feedListPath,etaType:currentEtaType(),fields:{...feedFields},src:{...feedSrc},srcList:{...feedSrcList},srcKey:{...feedSrcKey}}};
+}
+renderSrcList(); renderFeedMap();
+
+renderTabs(); syncColorCtl(); applyColors();
+</script>
+</body>
+</html>
