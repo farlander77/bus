@@ -8,10 +8,7 @@ body{
 	margin: 0px;
 	background: #a7cded;
 	font-family: Arial, Helvetica, sans-serif !important;
-    overflow-x: hidden;
-	overscroll-behavior-x: none;
-	width: 100%;
-	position: relative;
+    overflow-x: clip;
 }
 
 .text-bold{
@@ -49,6 +46,7 @@ body{
 
 .page{
 	max-width:500px;
+    overflow-x: hidden;
 }
 		
 
