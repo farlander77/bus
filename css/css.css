@@ -150,6 +150,8 @@ body{
 	/*justify-content: center;*/
 	flex-direction: column;
     flex: 1;
+    width: 100vw;
+    overflow: hidden;
 }
 .banner{
 	position: relative;
@@ -211,6 +213,8 @@ body{
 	/*justify-content: center;*/
 	flex-direction: column;
     flex: 1;
+    width: 100vw;
+    overflow: hidden;
 }
 .banner{
 	position: relative;
