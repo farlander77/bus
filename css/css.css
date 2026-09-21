@@ -211,7 +211,7 @@ body{
 	flex-direction: column;
     flex: 1;
     width: 100vw;
-    overflow-x: hidden;
+
 }
 .banner{
 	position: relative;
