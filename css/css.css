@@ -9,7 +9,6 @@ body{
 	background: #a7cded;
 	font-family: Arial, Helvetica, sans-serif !important;
     overflow-x: hidden !important;
-    width: 100vw;
 }
 
 .text-bold{
@@ -103,9 +102,9 @@ body{
 }
     
     
-    .build1{position: absolute; bottom: 133px; right: 50%; width: 50vw; text-align: center; z-index: -3;}
-    .build2{position: absolute; bottom: 133px; left: 50%; width: 50vw; text-align: center; z-index: -2;}
-    .build3{position: absolute; bottom: 133px; left: 0; width: 100%; text-align: center; z-index: -4;}
+    .build1{position: absolute; bottom: -25px; right: 50%; width: 50vw; text-align: center; z-index: -2;}
+    .build2{position: absolute; bottom: -15px; left: 50%; width: 50vw; text-align: center; z-index: -1;}
+    .build3{position: absolute; bottom: -25px; left: 0; width: 100%; text-align: center; z-index: -3;}
 }
 
 @media(max-width:767px){
@@ -125,9 +124,9 @@ body{
 	object-fit: contain;
 }
     
-    .build1{position: absolute; bottom: 150px; right: 50%; width: 50vw; text-align: center; z-index: -3;}
-    .build2{position: absolute; bottom: 150px; left: 50%; width: 50vw; text-align: center; z-index: -2;}
-    .build3{position: absolute; bottom: 150px; left: 0; width: 100%; text-align: center; z-index: -4;}
+    .build1{position: absolute; bottom: -25px; right: 50%; width: 50vw; text-align: center; z-index: -2;}
+    .build2{position: absolute; bottom: -15px; left: 50%; width: 50vw; text-align: center; z-index: -1;}
+    .build3{position: absolute; bottom: -25px; left: 0; width: 100%; text-align: center; z-index: -3;}
     
 }
 
