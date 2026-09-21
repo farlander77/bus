@@ -210,8 +210,6 @@ body{
 	/*justify-content: center;*/
 	flex-direction: column;
     flex: 1;
-    width: 100vw;
-
 }
 .banner{
 	position: relative;
