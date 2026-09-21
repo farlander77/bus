@@ -8,7 +8,8 @@ body{
 	margin: 0px;
 	background: #a7cded;
 	font-family: Arial, Helvetica, sans-serif !important;
-    overflow-x: hidden;
+    overflow-x: hidden !important;
+    width: 100dvw;
 }
 
 .text-bold{
@@ -48,7 +49,9 @@ body{
 	max-width:500px;
 }
 		
+.service-tel{ font-size: 11px; }
 
+.service-time{font-size: 10px; }
 
 .footer:before{
 	content: '';
@@ -122,10 +125,6 @@ body{
 	object-fit: contain;
 }
     
-/*    .build1{position: absolute; bottom: -15px; left: -40vw; z-index: -2;}
-    .build2{position: absolute; bottom: -35px; right: -65vw; z-index: -1;}
-    .build3{position: absolute; bottom: -25px; left: -0vw; z-index: -3;}*/
-    
     .build1{position: absolute; bottom: -25px; right: 50%; width: 50vw; text-align: center; z-index: -2;}
     .build2{position: absolute; bottom: -15px; left: 50%; width: 50vw; text-align: center; z-index: -1;}
     .build3{position: absolute; bottom: -25px; left: 0; width: 100%; text-align: center; z-index: -3;}
@@ -187,7 +186,7 @@ body{
 	align-items: center;
 	flex-direction: column;
 	color: #fff;
-	font-size: 14px;
+	font-size: 12px;
 	background: #71A55A;
 	padding: 10px 25px 15px 25px;
 	box-sizing: border-box;
@@ -247,7 +246,7 @@ body{
 	align-items: center;
 	flex-direction: column;
 	color: #fff;
-	font-size: 14px;
+	font-size: 12px;
 	background: #71A55A;
 	padding: 10px 25px;
 	box-sizing: border-box;
