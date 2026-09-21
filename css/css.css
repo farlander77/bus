@@ -5,6 +5,7 @@
 }
 html{
     overflow: hidden;
+    width: 100vw;
 }
 
 body{
