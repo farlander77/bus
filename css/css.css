@@ -4,17 +4,19 @@
 	box-sizing: border-box;
 }
 html{
-    width: 100vw;
-    overflow: hidden;
-
+   overflow: hidden;      /* html 本身完全不能捲動，橫向縱向都鎖死 */
+    height: 100%;
+    width: 100%;
 }
 
 body{
 	margin: 0px;
 	background: #a7cded;
 	font-family: Arial, Helvetica, sans-serif !important;
+     overflow-y: auto;      /* 真正的垂直捲動交給 body 負責 */
     overflow-x: hidden;
-    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;  /* 讓 iOS 捲動保持慣性順暢 */
+    position: relative;
 }
 
 .text-bold{
