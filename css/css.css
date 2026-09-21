@@ -46,7 +46,6 @@ body{
 
 .page{
 	max-width:500px;
-    overflow-x: hidden;
 }
 		
 
@@ -127,8 +126,8 @@ body{
     .build2{position: absolute; bottom: -35px; right: -65vw; z-index: -1;}
     .build3{position: absolute; bottom: -25px; left: -0vw; z-index: -3;}*/
     
-    .build1{position: absolute; bottom: -25px; right: 50%; width: 50vw; text-align: center; z-index: -2;}
-    .build2{position: absolute; bottom: -15px; left: 50%; width: 50vw; text-align: center; z-index: -1;}
+    .build1{position: absolute; bottom: -25px; right: 60%; width: 50vw; text-align: center; z-index: -2;}
+    .build2{position: absolute; bottom: -15px; left: 60%; width: 50vw; text-align: center; z-index: -1;}
     .build3{position: absolute; bottom: -25px; left: 0; width: 100%; text-align: center; z-index: -3;}
     
 }
